@@ -89,7 +89,22 @@ $(document).ready(function() {
         }
     });
 
-    $('fieldset.share a').social();
+    chrome.storage.sync.get(["info"], function (result) {
+
+        for (i = 0; i < result.info.length; i++) {
+
+            $(".sample").append("<li><label for='modelname" + i + "'>" + result.info[i].key + "</label><select  id='modelname" + i + "'>");
+
+            for (var j = 0; j < result.info[i].value.length; j++) {
+
+                $("#modelname" + i).append("<option value='" + j + "'>" + result.info[i].value[j].strict_locator + "</option>");
+            }
+
+            $(".sample").append("</select></li>");
+
+
+        }
+    });
 
     elements.version.text('ver. ' + chrome.app.getDetails().version);
 
@@ -98,7 +113,7 @@ $(document).ready(function() {
 
         for (var key in storage.targets) {
             elements.target.append('<option value="' + key + '">' +
-                storage.targets[key].label + '</option>');
+            storage.targets[key].label + '</option>');
         }
 
         elements.target.val(storage.target);
@@ -109,61 +124,61 @@ $(document).ready(function() {
         validate(elements.model.name);
     });
 
-    chrome.tabs.executeScript(null, {
-        file: 'assets/js/generator.js'
-    }, function(result) {
-        if (!result || chrome.runtime.lastError) {
-            notify.error('Unable to access page contents.');
-            elements.button.get(0).disabled = true;
-            console.log('error.generator', result, chrome.runtime.lastError);
-            return;
-        }
-    });
-
-    elements.button.click(function(e) {
-        e.preventDefault();
-        ga('send', 'event', 'generate', 'click', elements.target.val());
-        preloader.on();
-
-        if (!validate(elements.model.name)) {
-            notify.error('Page Name is required.');
-            preloader.off();
-            return;
-        }
-
-        var overrides = {
-            model: {
-                name: elements.model.name.val().replace(/\s+/g, ''),
-                target: elements.model.target.val()
-            }
-        };
+    
+   
+    elements.button.click(function (e) {
 
         storage.target = elements.target.val();
-        storage.model.name = overrides.model.name;
-        storage.model.target = overrides.model.target;
+        storage.model.name = elements.model.name.val().replace(/\s+/g, '');
+        storage.model.target = elements.model.target.val();
         storage.timestamp = new Date().valueOf();
 
-        chrome.storage.local.set(storage, function() {
+        var finaldata = [];
+
+
+
+        chrome.storage.sync.get(["info"], function (result) {
+           
+
+
+            for (let i = 0; i < result.info.length; i++) {
+
+                var locator_temp = result.info[i].value[$("#modelname" + i).val()].strict_locator;
+                alert(JSON.stringify(locator_temp));
+               
+                var resulting = {
+                    name: result.info[i].key,
+                    class: result.info[i].value[$("#modelname" + i).val()].class, //TO-DO
+
+
+                    locator: locator_temp,
+                    frameName: result.info[i].value[$("#modelname" + i).val()].frameName,
+                    locator_type: result.info[i].value[$("#modelname" + i).val()].locator.type,
+                    locator_value: result.info[i].value[$("#modelname" + i).val()].locator.value
+
+
+                };
+
+                finaldata.push(resulting);
+                
+
+            }
+
+            var context = {
+                title: storage.model.name,
+                locators: finaldata
+            };
+
             var target = storage.targets[storage.target];
-            overrides.model.include = target.config.model.include;
-            overrides.model.namespace = target.config.model.namespace;
-            var input = $.extend({}, target.config, overrides);
+            
+            var generated = (Handlebars.compile(target.template))(context);
 
-            processActivePage(input).always(function(context) {
-                ga('send', 'event', 'active.page', 'process', context.url);
+            var fileName = storage.model.name + '.' + "json";
 
-                var generated = (Handlebars.compile(target.template))(context);
-                var fileName = context.model.name + '.' + storage.target;
+            download(elements.downloader, fileName, generated);
 
-                if (context.model.include) {
-                    fileName = context.model.namespace + '.' + fileName;
-                }
-
-                download(elements.downloader, fileName, generated);
-
-                notify.success(fileName + ' is saved.');
-                preloader.off();
-            });
+            notify.success(fileName + ' is saved.');
         });
     });
 });
+

@@ -82,7 +82,7 @@ function js(base, inputs, output) {
         //pipe(jshint('.jshintrc')).
         //pipe(jshint.reporter('default')).
         pipe(concat(output)).
-        pipe(uglify()).
+        // pipe(uglify()).
         pipe(header(banner)).
         pipe(gulp.dest(BUILD));
 }
@@ -123,7 +123,7 @@ gulp.task('chrome:copy:manifest', function() {
         pipe(gulp.dest(BUILD + CHROME));
 });
 
-gulp.task('chrome:css', [ 'chrome:css:options', 'chrome:css:popup' ], function(cb) {
+gulp.task('chrome:css', ['chrome:css:options','chrome:css:popup' ], function(cb) {
     cb();
 });
 
@@ -148,28 +148,32 @@ gulp.task('chrome:dist', function() {
         pipe(gulp.dest(DIST));
 });
 
-gulp.task('chrome:html', [ 'chrome:html:options', 'chrome:html:popup' ], function(cb) {
+gulp.task('chrome:html', [ 'chrome:html:popup','chrome:html:options' ], function(cb) {
     cb();
 });
 
-gulp.task('chrome:html:options', function() {
-    return html('options.html');
-});
+
 
 gulp.task('chrome:html:popup', function() {
     return html('popup.html');
 });
 
-gulp.task('chrome:js', [ 'chrome:js:generator', 'chrome:js:options', 'chrome:js:popup' ], function(cb) {
+gulp.task('chrome:js', [ 'chrome:js:generator', 'chrome:js:options','chrome:js:content', 'chrome:js:popup' ], function(cb) {
     cb();
 });
 
-gulp.task('chrome:js:generator', function() {
+
+gulp.task('chrome:js:content', function() {
     return js(SRC, [
+            SRC + CHROME_JS + 'content.js',
+            SRC + CHROME_JS + 'locator.js',
+            LIBS + 'jquery-3.3.1.js',
             SRC + COMMON + 'common.js',
-            SRC + COMMON + 'generator.js'
-        ], CHROME_JS + 'generator.js');
+            SRC + CHROME_JS + 'options.js'
+            
+        ], CHROME_JS + 'content.js');
 });
+
 
 gulp.task('chrome:js:options', function() {
     return js(SRC, [
@@ -180,13 +184,19 @@ gulp.task('chrome:js:options', function() {
         ], CHROME_JS + 'options.js');
 });
 
+gulp.task('chrome:js:generator', function() {
+    return js(SRC, [
+            SRC + COMMON + 'common.js',
+            SRC + COMMON + 'generator.js'
+        ], CHROME_JS + 'generator.js');
+});
+
 gulp.task('chrome:js:popup', function() {
     return js(SRC, [
             LIBS + 'jquery-3.3.1.js',
             LIBS + 'handlebars-v4.0.11.js',
             SRC + CHROME_JS + 'preloader.js',
             SRC + CHROME_JS + 'notify.js',
-            SRC + CHROME_JS + 'social.js',
             SRC + COMMON + 'common.js',
             SRC + COMMON + 'helpers.js',
             SRC + CHROME_JS + 'popup.js'
@@ -237,6 +247,10 @@ gulp.task('common:test', function(cb) {
         });
 });
 
+
+gulp.task('chrome:html:options', function() {
+    return html('options.html');
+});
 //gulp.task('watch', function() {
 //});
 
