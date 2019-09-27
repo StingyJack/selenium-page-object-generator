@@ -6,15 +6,30 @@ public class {{title}} {
         this.driver = driver;
     }
 
+
+    /*PO
+    {
+        "title":"{{title}}",
+        "info":[
+        {{#list locators}}
+        {"value":[{{{info}}}]}
+        
+        {{/list}}
+
+        ]
+    }
+
+    PO*/
+
     {{#list locators}}
-        private By {{name}} = By.{{locator_type}}("{{locator_value}}");  
+    private By {{name}} = By.{{{locator_type}}}("{{{locator_value}}}");  
       
     {{/list}}
 
     {{#list locators}}
-        public RemoteWebElement get{{name}}(){
-            return driver.findElement({{name}});
-        }      
+    public RemoteWebElement get{{{name}}}(){
+        return driver.findElement({{{name}}});
+    }      
     {{/list}}
 }
 

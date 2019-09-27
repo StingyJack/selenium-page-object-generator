@@ -5,9 +5,10 @@ function getElements() {
             letter: $('[id="attributes.letter"]'),
             separator: $('[id="attributes.separator"]')
         },
-        copyright: {
-            claimant: $('[id="copyright.claimant"]'),
-            year: $('[id="copyright.year"]')
+        git: {
+            repo: $('[id="git.repo"]'),
+            user: $('[id="git.user"]'),
+            key: $('[id="git.key"]')
         },
         fill: {
             separator: $('[id="fill.separator"]')
@@ -76,8 +77,9 @@ function pull(elements, target) {
     target.config.attributes.separator = elements.attributes.separator.val().
         replace(/\\n/g, '\n');
 
-    target.config.copyright.claimant = elements.copyright.claimant.val();
-    target.config.copyright.year = elements.copyright.year.val();
+    target.config.git.repo = elements.git.repo.val();
+    target.config.git.user = elements.git.user.val();
+    target.config.git.key = elements.git.key.val();
 
     target.config.fill.separator = elements.fill.separator.val().
         replace(/\\n/g, '\n');
@@ -120,8 +122,9 @@ function push(elements, target) {
     elements.attributes.separator.val(target.config.attributes.
         separator.replace(/\n/g, '\\n'));
 
-    elements.copyright.claimant.val(target.config.copyright.claimant);
-    elements.copyright.year.val(target.config.copyright.year);
+    elements.git.repo.val(target.config.git.repo);
+    elements.git.user.val(target.config.git.user);
+    elements.git.key.val(target.config.git.key);
 
     elements.fill.separator.val(target.config.fill.separator.
         replace(/\n/g, '\\n'));

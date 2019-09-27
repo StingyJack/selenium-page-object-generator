@@ -89,6 +89,112 @@ $(document).ready(function() {
         }
     });
 
+    $('button.findPage').click(function(e) {
+        var target = storage.targets[elements.target.val()];
+        e.preventDefault();
+        ga('send', 'event', 'options', 'click');
+
+        function getRootTreeCallBack(sha){
+            if(sha!=null){
+
+                getFileList(sha,target.config.git.user,target.config.git.key,target.config.git.repo,getFileListCallBack);
+            }
+        }
+        function getFileListCallBack(data,repo){
+            for(var i =0;i<data.length;++i){
+                getFileContent(data[i].name,data[i].url,target.config.git.user,target.config.git.key,getFileContentCallback)
+            }
+
+        }
+        function getFileContentCallback(content,filetype){
+            //TODO
+
+
+            commentsToJson(content);
+        }
+
+
+
+
+        
+
+        function commentsToJson(content){
+            var res = getComments(content);
+
+            if(res != null){
+                chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+
+                    chrome.tabs.sendMessage(tabs[0].id, {greeting: res});
+                  });
+
+            }
+        }
+
+
+        function getComments(text) {
+            
+            var index = text.indexOf(escape("PO"));
+
+            if(index != -1){
+                var temp = text.substring(index+4,text.lastIndexOf(escape("PO"))-3);
+                return JSON.parse(temp);
+            }
+            return null;
+            
+            
+        }
+
+        getRootTree("master",target.config.git.user,target.config.git.key,target.config.git.repo,getRootTreeCallBack);
+
+    });
+
+    chrome.runtime.onMessage.addListener(
+        function(request, sender, sendResponse) {
+          if (request.greeting == "hello"){
+            sendResponse({farewell: "goodbye"});
+
+            chrome.storage.sync.get(["info"], function (result) {
+
+                for (i = result.info.length-1; i < result.info.length; i++) {
+        
+                    $(".sample").append("<li><label for='modelname" + i + "'>" + result.info[i].key + "</label><select  id='modelname" + i + "'>");
+        
+                    for (var j = 0; j < result.info[i].value.length; j++) {
+        
+                        $("#modelname" + i).append("<option value='" + j + "'>" + result.info[i].value[j].strict_locator + "</option>");
+                    }
+        
+                    $(".sample").append("</select></li>");
+        
+        
+                }
+            });
+            
+
+          }else if(request.greeting  == "bolo"){
+            sendResponse({farewell: "goodbye"});
+            $(".sample").empty();
+
+            for (i = 0; i < request.info.length; ++i) {
+
+               
+
+                $(".sample").append("<li><label for='modelname" + i + "'>" + request.info[i].value[0].name + "</label><select  id='modelname" + i + "'>");
+    
+                for (var j = 0; j < request.info[i].value.length; j++) {
+    
+                    $("#modelname" + i).append("<option value='" + j + "'>" + request.info[i].value[j].strict_locator + "</option>");
+                }
+    
+                $(".sample").append("</select></li>");
+    
+    
+            }
+          }
+          
+            
+        });
+
     chrome.storage.sync.get(["info"], function (result) {
 
         for (i = 0; i < result.info.length; i++) {
@@ -116,6 +222,7 @@ $(document).ready(function() {
             storage.targets[key].label + '</option>');
         }
 
+
         elements.target.val(storage.target);
         elements.model.name.val(storage.model.name);
         elements.model.target.val(storage.model.target);
@@ -138,13 +245,13 @@ $(document).ready(function() {
 
 
         chrome.storage.sync.get(["info"], function (result) {
+            
            
 
 
             for (let i = 0; i < result.info.length; i++) {
 
                 var locator_temp = result.info[i].value[$("#modelname" + i).val()].strict_locator;
-                alert(JSON.stringify(locator_temp));
                
                 var resulting = {
                     name: result.info[i].key,
@@ -154,10 +261,13 @@ $(document).ready(function() {
                     locator: locator_temp,
                     frameName: result.info[i].value[$("#modelname" + i).val()].frameName,
                     locator_type: result.info[i].value[$("#modelname" + i).val()].locator.type,
-                    locator_value: result.info[i].value[$("#modelname" + i).val()].locator.value
+                    locator_value: result.info[i].value[$("#modelname" + i).val()].locator.value,
+                    info: JSON.stringify(result.info[i].value[$("#modelname" + i).val()])
+
 
 
                 };
+                
 
                 finaldata.push(resulting);
                 
@@ -173,12 +283,180 @@ $(document).ready(function() {
             
             var generated = (Handlebars.compile(target.template))(context);
 
-            var fileName = storage.model.name + '.' + "json";
+            
+            var fileName = storage.model.name + '.' + storage.target;
 
+            if(target.config.git.user != ""){
+            
+
+                getFileShah(fileName, generated,target.config.git.user,target.config.git.key,target.config.git.repo);
+            }
+            
             download(elements.downloader, fileName, generated);
 
             notify.success(fileName + ' is saved.');
         });
     });
 });
+
+
+
+function gitUpload(file, content, username, password,repo, sha)
+{
+
+    // Update a user
+    var url = repo+"/contents/";
+    
+    var data;
+
+    if(sha==null){
+        data = {
+            "message": "my commit message",
+            "committer": {
+            "name": "Fakrudeen Shahul",
+            "email": "fakrudeen@github.com"
+            },
+            "content": btoa(content)
+            
+        };
+    }else{
+        data = {
+            "message": "my commit message",
+            "committer": {
+            "name": "Fakrudeen Shahul",
+            "email": "fakrudeen@github.com"
+            },
+            "content": btoa(content),
+            sha
+            
+        };
+
+    }
+      
+    
+
+      var json = JSON.stringify(data);
+      alert(json);
+
+
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("PUT", url+file, true);
+    xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
+    xhr.setRequestHeader ("Authorization", "Basic " + btoa(username + ":" + password));
+
+    xhr.onload = function () {
+        var users = JSON.parse(xhr.responseText);
+        if (xhr.readyState == 4 && xhr.status == "200") {
+            alert(JSON.stringify(users));
+        } else {
+            alert(JSON.stringify(xhr.responseText));
+        }
+    }
+    xhr.send(json);
+};
+
+function getFileShah(file, content,username, password,repo)
+{
+
+    // Update a user
+    var url = repo+"/contents/";
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", url+file, true);
+    xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
+    xhr.setRequestHeader ("Authorization", "Basic " + btoa(username + ":" + password));
+
+    xhr.onload = function () {
+        
+        var users = JSON.parse(xhr.responseText);
+        if (xhr.readyState == 4 && xhr.status == "200") {
+            alert(users.sha)
+
+            gitUpload(file, content, username, password,repo,users.sha);
+        } else {
+            gitUpload(file, content, username, password,repo,null);
+        }
+    }
+    xhr.send(null);
+};
+
+function getRootTree(branch, username, password, repo, cb){
+    // Update a user
+    var url = repo+"/branches/"+branch;
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", url, true);
+    xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
+    xhr.setRequestHeader ("Authorization", "Basic " + btoa(username + ":" + password));
+
+    xhr.onload = function () {
+        var users = JSON.parse(xhr.responseText);
+        if (xhr.readyState == 4 && xhr.status == "200") {
+            cb(users.commit.sha)
+        } else {
+            cb(null);
+        }
+    }
+    xhr.send(null);
+
+}
+
+function getFileList(sha, username, password,repo, cb)
+{
+
+    // Update a user
+    var url = repo+"/git/trees/"+sha+"?recursive=1";
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", url, true);
+    xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
+    xhr.setRequestHeader ("Authorization", "Basic " + btoa(username + ":" + password));
+
+    xhr.onload = function () {
+        var content = JSON.parse(xhr.responseText);
+        if (xhr.readyState == 4 && xhr.status == "200") {
+            var result =[];
+            
+            for( var index =0;index < content.tree.length; ++index){
+                if(content.tree[index].type == "blob"){
+                    result.push({name : content.tree[index].path, url:content.tree[index].url});
+                }
+            }
+            cb(result);
+        } else {
+            cb(null);
+        }
+    }
+    xhr.send(null);
+};
+
+
+function getFileContent(name, url,username, password, cb){
+    var filename = name;
+    if(name.lastIndexOf("\/")>0){
+        name.substring(name.lastIndexOf("\/")+1);
+    }
+    
+    var filetype = "";
+    if(filename.lastIndexOf("\.")>0){
+        filetype = filename.substring(filename.lastIndexOf("\.")+1);
+    }
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", url, true);
+    xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
+    xhr.setRequestHeader ("Authorization", "Basic " + btoa(username + ":" + password));
+
+    xhr.onload = function () {
+        var content = JSON.parse(xhr.responseText);
+        if (xhr.readyState == 4 && xhr.status == "200") {
+           
+            cb(atob(content.content),filetype);
+        } else {
+            cb(null);
+        }
+    }
+    xhr.send(null);
+
+}
 

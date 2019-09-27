@@ -195,11 +195,13 @@
                 this.getDefaultValue('attributes_separator', '\n'));
 
             // copyright
-            input.copyright = input.copyright || {};
-            input.copyright.claimant = input.copyright.claimant ||
-                this.getDefaultValue('copyright_claimant', '');
-            input.copyright.year = input.copyright.year ||
-                this.getDefaultValue('copyright_year', new Date().getFullYear());
+            input.git = input.git || {};
+            input.git.repo = input.git.repo ||
+                this.getDefaultValue('git_repo', '');
+            input.git.user = input.git.user ||
+                this.getDefaultValue('git_user', '');
+            input.git.key = input.git.key ||
+                this.getDefaultValue('git_key', '');
 
             // fill
             input.fill = input.fill || {};

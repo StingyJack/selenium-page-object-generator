@@ -4,6 +4,60 @@ chrome.storage.sync.set({ "info": sam }, function() {
 
 });
 
+chrome.runtime.onMessage.addListener(
+  function(request, sender) {
+
+
+    for(var i =0;i< request.greeting.info.length;i++){
+      var value =request.greeting.info[i];
+      for(var j =0;j< value.value.length;j++){
+     
+        if(checkLocatorExists(value.value[j].locator)== false){
+          return;
+        }
+      }
+    }
+
+    chrome.runtime.sendMessage({greeting: "bolo","info":request.greeting.info}, function(response) {
+          
+    });
+  
+  function checkLocatorExists(locator){
+  
+      if(locator.type =='id'){
+          if(document.getElementById(locator.value.substring(locator.value.indexOf("=")+1))!=null){
+              return true;
+          }
+  
+      }else if (locator.type == 'name'){
+          if(document.getElementsByName(locator.value.substring(locator.value.indexOf("=")+1)).length >0){
+              return true;
+          }
+      }else if (locator.type == 'css'){
+          if(document.querySelector(locator.value.substring(locator.value.indexOf("=")+1))!=null){
+              return true;
+          }
+      }else if (locator.type == 'xpath'){
+          if(document.evaluate(locator.value.substring(locator.value.indexOf("=")+1), document, null, XPathResult.ANY_TYPE, null).iterateNext()!=null){
+              return true
+          }
+      }else if (locator.type == '//'){
+          if(document.evaluate(locator.value, document, null, XPathResult.ANY_TYPE, null).iterateNext()!=null){
+              return true
+          }
+      }else if (locator.type =='link'){
+           if(document.evaluate("//a[text()='"+locator.value.substring(locator.value.indexOf("=")+1)+"']", document, null, XPathResult.ANY_TYPE, null).iterateNext()!=null){
+              return true
+          }
+  
+      }
+  
+      return false;
+    }
+  
+     return true; 
+  });
+
   abc = function(element){
     var elements = new Array();
     
@@ -210,12 +264,18 @@ function action (myelement) {
                 
               
             }
-	        newArr.push({ "key":name1, "value":res});
+          newArr.push({ "key":name1, "value":res});
+          
+
+          
 	        
 	        
 	        chrome.storage.sync.set({"info": newArr }, function() {
 
-			    });
+          });
+          chrome.runtime.sendMessage({greeting: "hello","info":newArr}, function(response) {
+            console.log(response.farewell);
+          });
 		});
     
 };

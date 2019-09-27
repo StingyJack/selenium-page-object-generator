@@ -126,7 +126,12 @@
 Handlebars.registerHelper('list', function (items, options) {
   var result ="";
   for (var i = 0, l = items.length; i < l; i++) {
-    result = result +options.fn(items[i])
+    if(i==0){
+      result = result + options.fn(items[i])
+    }else {
+      result = result +","+options.fn(items[i])
+    }
+    
   }
       
 return result;
