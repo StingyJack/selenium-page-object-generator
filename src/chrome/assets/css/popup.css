@@ -13,7 +13,7 @@ body {
     font-weight: normal;
     margin: 0;
     padding: 0;
-    width: 350px;
+    width: 400px;
 }
 button, input, label, legend, select {
     font-size: 0.875em;
@@ -174,7 +174,6 @@ ul li input {
     width: 215px;
 }
 ul li input[type=checkbox] {
-    margin-left: 65px;
     width: 15px;
 }
 ul li.error label {

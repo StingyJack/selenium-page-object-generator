@@ -6,8 +6,7 @@ chrome.storage.sync.set({ "info": sam }, function() {
 
 chrome.runtime.onMessage.addListener(
   function(request, sender) {
-
-
+   if(request.greeting.info && request.greeting.info.length>0){
     for(var i =0;i< request.greeting.info.length;i++){
       var value =request.greeting.info[i];
       for(var j =0;j< value.value.length;j++){
@@ -18,9 +17,19 @@ chrome.runtime.onMessage.addListener(
       }
     }
 
-    chrome.runtime.sendMessage({greeting: "bolo","info":request.greeting.info}, function(response) {
-          
+    chrome.storage.sync.set({"info": request.greeting.info }, function() {
+
     });
+
+    chrome.runtime.sendMessage({greeting: "bolo","info":request.greeting.info}, function(response) {
+
+    });
+   }
+
+
+      
+
+    
   
   function checkLocatorExists(locator){
   
@@ -138,7 +147,7 @@ function action (myelement) {
     	var res;
     	chrome.storage.sync.get(["info"], function(result) {
     			
-          var newArr = result.info.slice();
+          var newArr = result.info;
         
 	        // Call the specified callback, passing
 	        // the web-page's DOM content as argument
@@ -264,11 +273,12 @@ function action (myelement) {
                 
               
             }
-          newArr.push({ "key":name1, "value":res});
-          
 
+
+          console.log("Before Push New Array Size: "+ newArr.length)
+          newArr.push({ "key":name1, "value":res});
+          console.log("After New Array Size:"+ newArr.length);
           
-	        
 	        
 	        chrome.storage.sync.set({"info": newArr }, function() {
 

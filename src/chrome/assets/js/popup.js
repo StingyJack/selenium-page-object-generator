@@ -89,6 +89,41 @@ $(document).ready(function() {
         }
     });
 
+    $('button.delete').click(function(e) {
+        e.preventDefault();
+        ga('send', 'event', 'options', 'click');
+
+        chrome.storage.sync.get(["info"], function (result) {
+            var todelete=[];
+
+            for (i = 0; i < result.info.length; i++) {
+                
+                if($("#check" + i).is(":checked")==true){
+                    todelete.push(i);
+                }
+                
+            }
+
+            for(i=0;i<todelete.length;i++){
+                result.info.splice(i,1);
+            }
+
+            chrome.storage.sync.set({"info": result.info }, function() {
+                drawControls(result);
+
+            });
+
+           
+
+
+
+        });
+        
+       
+
+       
+    });
+
     $('button.findPage').click(function(e) {
         var target = storage.targets[elements.target.val()];
         e.preventDefault();
@@ -106,9 +141,8 @@ $(document).ready(function() {
             }
 
         }
-        function getFileContentCallback(content,filetype){
+        function getFileContentCallback(content){
             //TODO
-
 
             commentsToJson(content);
         }
@@ -132,11 +166,16 @@ $(document).ready(function() {
 
 
         function getComments(text) {
+            if(text == null){
+                return null;
+            }
             
             var index = text.indexOf(escape("PO"));
+            var lastIndex = text.lastIndexOf(escape("PO"))
 
-            if(index != -1){
-                var temp = text.substring(index+4,text.lastIndexOf(escape("PO"))-3);
+            if(index != -1 && lastIndex != -1){
+                
+                var temp = text.substring(index+4,lastIndex-3);
                 return JSON.parse(temp);
             }
             return null;
@@ -151,55 +190,33 @@ $(document).ready(function() {
     chrome.runtime.onMessage.addListener(
         function(request, sender, sendResponse) {
           if (request.greeting == "hello"){
-            sendResponse({farewell: "goodbye"});
 
             chrome.storage.sync.get(["info"], function (result) {
 
-                for (i = result.info.length-1; i < result.info.length; i++) {
-        
-                    $(".sample").append("<li><label for='modelname" + i + "'>" + result.info[i].key + "</label><select  id='modelname" + i + "'>");
-        
-                    for (var j = 0; j < result.info[i].value.length; j++) {
-        
-                        $("#modelname" + i).append("<option value='" + j + "'>" + result.info[i].value[j].strict_locator + "</option>");
-                    }
-        
-                    $(".sample").append("</select></li>");
-        
-        
-                }
+                drawControls(result)
             });
             
 
           }else if(request.greeting  == "bolo"){
-            sendResponse({farewell: "goodbye"});
-            $(".sample").empty();
+            
+            chrome.storage.sync.get(["info"], function (result) {
 
-            for (i = 0; i < request.info.length; ++i) {
-
-               
-
-                $(".sample").append("<li><label for='modelname" + i + "'>" + request.info[i].value[0].name + "</label><select  id='modelname" + i + "'>");
-    
-                for (var j = 0; j < request.info[i].value.length; j++) {
-    
-                    $("#modelname" + i).append("<option value='" + j + "'>" + request.info[i].value[j].strict_locator + "</option>");
-                }
-    
-                $(".sample").append("</select></li>");
-    
-    
-            }
+                drawControls(result);
+            });
+           
+            
           }
           
             
         });
 
-    chrome.storage.sync.get(["info"], function (result) {
+    function drawControls(result){
+
+        $(".sample").empty();
 
         for (i = 0; i < result.info.length; i++) {
 
-            $(".sample").append("<li><label for='modelname" + i + "'>" + result.info[i].key + "</label><select  id='modelname" + i + "'>");
+            $(".sample").append("<li><input id='check" + i + "' type='checkbox'></input><label for='modelname" + i + "'>" + result.info[i].key + "</label><select  id='modelname" + i + "'>");
 
             for (var j = 0; j < result.info[i].value.length; j++) {
 
@@ -210,6 +227,12 @@ $(document).ready(function() {
 
 
         }
+
+    }
+
+    chrome.storage.sync.get(["info"], function (result) {
+
+        drawControls(result)
     });
 
     elements.version.text('ver. ' + chrome.app.getDetails().version);
@@ -335,9 +358,7 @@ function gitUpload(file, content, username, password,repo, sha)
       
     
 
-      var json = JSON.stringify(data);
-      alert(json);
-
+    var json = JSON.stringify(data);
 
 
     var xhr = new XMLHttpRequest();
@@ -419,7 +440,9 @@ function getFileList(sha, username, password,repo, cb)
             var result =[];
             
             for( var index =0;index < content.tree.length; ++index){
-                if(content.tree[index].type == "blob"){
+
+
+                if(content.tree[index].type == "blob" && content.tree[index].path.endsWith(getElements().target.val())){
                     result.push({name : content.tree[index].path, url:content.tree[index].url});
                 }
             }
@@ -433,15 +456,9 @@ function getFileList(sha, username, password,repo, cb)
 
 
 function getFileContent(name, url,username, password, cb){
-    var filename = name;
-    if(name.lastIndexOf("\/")>0){
-        name.substring(name.lastIndexOf("\/")+1);
-    }
     
-    var filetype = "";
-    if(filename.lastIndexOf("\.")>0){
-        filetype = filename.substring(filename.lastIndexOf("\.")+1);
-    }
+    
+    
     var xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
     xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
@@ -451,7 +468,7 @@ function getFileContent(name, url,username, password, cb){
         var content = JSON.parse(xhr.responseText);
         if (xhr.readyState == 4 && xhr.status == "200") {
            
-            cb(atob(content.content),filetype);
+            cb(atob(content.content));
         } else {
             cb(null);
         }

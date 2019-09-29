@@ -3,3 +3,8 @@ builds
 dist
 lcov
 node_modules
+src/chrome/assets/.DS_Store
+src/.DS_Store
+src/chrome/.DS_Store
+.DS_Store
+package-lock.json
