@@ -124,17 +124,20 @@ $(document).ready(function() {
        
     });
 
-    $('button.add').click(function(e) {
-        var target = storage.targets[elements.target.val()];
-        e.preventDefault();
-        ga('send', 'event', 'options', 'click');
-        var name = prompt('what is the name of the element?');
-        var locator = prompt('what is the locator of the element?');
+    // $('button.add').click(function(e) {
+    //     var target = storage.targets[elements.target.val()];
+    //     e.preventDefault();
+    //     ga('send', 'event', 'options', 'click');
+    //     var name = prompt('what is the name of the element?');
+    //     var locator = prompt('what is the locator of the element?');
 
-        
+    //     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+
+    //         chrome.tabs.sendMessage(tabs[0].id, { add: { name: name, locator: locator}});
+    //       });
 
 
-    });
+    // });
 
 
 
@@ -166,15 +169,12 @@ $(document).ready(function() {
             
         }
         function metaDataToJson(content){
-            alert(content)
 
             var temp = JSON.parse(content);
 
 
             if(temp.metadata){
-                alert('before metadata')
-                var meta = JSON.stringify(temp.metadata)
-                alert('got metadata')
+                var meta = JSON.parse(unescape(temp.metadata))
                 if(meta){
                     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 
@@ -432,7 +432,6 @@ function getFileShah(file, content,username, password,repo)
         
         var users = JSON.parse(xhr.responseText);
         if (xhr.readyState == 4 && xhr.status == "200") {
-            alert(users.sha)
 
             gitUpload(file, content, username, password,repo,users.sha);
         } else {
