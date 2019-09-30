@@ -159,7 +159,7 @@ $(document).ready(function() {
             //TODO
             if(type == "java"){
                 commentsToJson(content);
-            }else if (type == "robot"){
+            }else if (type == "json"){
                 metaDataToJson(content);
 
             }

@@ -112,9 +112,8 @@
                     };
                     storage.target = storage.target || 'java';
                     storage.targets = storage.targets || {
-                        cs: { label: 'C#' },
                         java: { label: 'Java' },
-                        robot: { label: 'Robot Framework' }
+                        json: { label: 'Json' }
                     };
 
                     // first timer
