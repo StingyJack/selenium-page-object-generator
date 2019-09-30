@@ -6,6 +6,7 @@ chrome.storage.sync.set({ "info": sam }, function() {
 
 chrome.runtime.onMessage.addListener(
   function(request, sender) {
+    alert(JSON.stringify(request))
    if(request.greeting.info && request.greeting.info.length>0){
     for(var i =0;i< request.greeting.info.length;i++){
       var value =request.greeting.info[i];

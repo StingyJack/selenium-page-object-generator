@@ -124,6 +124,20 @@ $(document).ready(function() {
        
     });
 
+    $('button.add').click(function(e) {
+        var target = storage.targets[elements.target.val()];
+        e.preventDefault();
+        ga('send', 'event', 'options', 'click');
+        var name = prompt('what is the name of the element?');
+        var locator = prompt('what is the locator of the element?');
+
+        
+
+
+    });
+
+
+
     $('button.findPage').click(function(e) {
         var target = storage.targets[elements.target.val()];
         e.preventDefault();
@@ -135,16 +149,41 @@ $(document).ready(function() {
                 getFileList(sha,target.config.git.user,target.config.git.key,target.config.git.repo,getFileListCallBack);
             }
         }
-        function getFileListCallBack(data,repo){
+        function getFileListCallBack(data,fileType){
             for(var i =0;i<data.length;++i){
-                getFileContent(data[i].name,data[i].url,target.config.git.user,target.config.git.key,getFileContentCallback)
+                getFileContent(data[i].name,data[i].url,target.config.git.user,target.config.git.key,fileType,getFileContentCallback)
             }
 
         }
-        function getFileContentCallback(content){
+        function getFileContentCallback(content,type){
             //TODO
+            if(type == "java"){
+                commentsToJson(content);
+            }else if (type == "robot"){
+                metaDataToJson(content);
 
-            commentsToJson(content);
+            }
+            
+        }
+        function metaDataToJson(content){
+            alert(content)
+
+            var temp = JSON.parse(content);
+
+
+            if(temp.metadata){
+                alert('before metadata')
+                var meta = JSON.stringify(temp.metadata)
+                alert('got metadata')
+                if(meta){
+                    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+
+                        chrome.tabs.sendMessage(tabs[0].id, {greeting: {info:meta}});
+                      });
+                }
+            }
+            
+
         }
 
 
@@ -277,6 +316,7 @@ $(document).ready(function() {
                 var locator_temp = result.info[i].value[$("#modelname" + i).val()].strict_locator;
                
                 var resulting = {
+
                     name: result.info[i].key,
                     class: result.info[i].value[$("#modelname" + i).val()].class, //TO-DO
 
@@ -285,7 +325,6 @@ $(document).ready(function() {
                     frameName: result.info[i].value[$("#modelname" + i).val()].frameName,
                     locator_type: result.info[i].value[$("#modelname" + i).val()].locator.type,
                     locator_value: result.info[i].value[$("#modelname" + i).val()].locator.value,
-                    info: JSON.stringify(result.info[i].value[$("#modelname" + i).val()])
 
 
 
@@ -299,7 +338,8 @@ $(document).ready(function() {
 
             var context = {
                 title: storage.model.name,
-                locators: finaldata
+                locators: finaldata,
+                metadata : escape(JSON.stringify(result.info))
             };
 
             var target = storage.targets[storage.target];
@@ -425,7 +465,7 @@ function getRootTree(branch, username, password, repo, cb){
 
 function getFileList(sha, username, password,repo, cb)
 {
-
+    var fileType = getElements().target.val();
     // Update a user
     var url = repo+"/git/trees/"+sha+"?recursive=1";
 
@@ -442,11 +482,11 @@ function getFileList(sha, username, password,repo, cb)
             for( var index =0;index < content.tree.length; ++index){
 
 
-                if(content.tree[index].type == "blob" && content.tree[index].path.endsWith(getElements().target.val())){
+                if(content.tree[index].type == "blob" && content.tree[index].path.endsWith(fileType)){
                     result.push({name : content.tree[index].path, url:content.tree[index].url});
                 }
             }
-            cb(result);
+            cb(result,fileType);
         } else {
             cb(null);
         }
@@ -455,7 +495,7 @@ function getFileList(sha, username, password,repo, cb)
 };
 
 
-function getFileContent(name, url,username, password, cb){
+function getFileContent(name, url,username, password,fileType, cb){
     
     
     
@@ -468,7 +508,7 @@ function getFileContent(name, url,username, password, cb){
         var content = JSON.parse(xhr.responseText);
         if (xhr.readyState == 4 && xhr.status == "200") {
            
-            cb(atob(content.content));
+            cb(atob(content.content),fileType);
         } else {
             cb(null);
         }
