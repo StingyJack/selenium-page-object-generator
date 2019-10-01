@@ -124,20 +124,20 @@ $(document).ready(function() {
        
     });
 
-    // $('button.add').click(function(e) {
-    //     var target = storage.targets[elements.target.val()];
-    //     e.preventDefault();
-    //     ga('send', 'event', 'options', 'click');
-    //     var name = prompt('what is the name of the element?');
-    //     var locator = prompt('what is the locator of the element?');
+    $('button.add').click(function(e) {
+        var target = storage.targets[elements.target.val()];
+        e.preventDefault();
+        ga('send', 'event', 'options', 'click');
+        var name = prompt('what is the name of the element?');
+        var locator = prompt('what is the locator of the element?');
 
-    //     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 
-    //         chrome.tabs.sendMessage(tabs[0].id, { add: { name: name, locator: locator}});
-    //       });
+            chrome.tabs.sendMessage(tabs[0].id, { add: { name: name, locator: locator}});
+          });
 
 
-    // });
+    });
 
 
 

@@ -6,8 +6,140 @@ chrome.storage.sync.set({ "info": sam }, function() {
 
 chrome.runtime.onMessage.addListener(
   function(request, sender) {
-    alert(JSON.stringify(request.greeting))
-   if(request.greeting.info && request.greeting.info.length>0){
+
+    if(request.add){
+
+      var myelement = getLocator(request.add.locator);
+
+      if(myelement !=null){
+
+        chrome.storage.sync.get(["info"], function(result) {
+    			
+          var newArr = result.info;
+
+          var res =[];
+          var name1 = request.add.name;
+                if(request.add.locator.startsWith('id=')>0){
+
+                  
+
+                  var locator1 = {
+                    name : name1,
+                    class : getClassName(myelement),
+                    strict_locator : request.add.locator,
+                    locator : {
+                      type : "id",
+                      value : request.add.locator.substring(request.add.locator.indexOf('id=')),
+                      tag_name : myelement.tagName
+                    },
+                    frameName : getFrameName(myelement)
+                  };
+                  
+                  res.push(locator1);
+                  
+                } else if(request.add.locator.startsWith('name=')>0){
+
+                  var locator1 = {
+                    name : name1,
+                    class : getClassName(myelement),
+                    strict_locator : request.add.locator,
+                    locator : {
+                      type : "name",
+                      value : request.add.locator.substring(request.add.locator.indexOf('name=')),
+                      tag_name : myelement.tagName
+                    },
+                    frameName : getFrameName(myelement)
+                  };
+                  
+
+                  res.push(locator1);
+                  
+
+                } else if(request.add.locator.startsWith('link=')>0){
+
+                  var locator1 = {
+                    name : name1,
+                    class : getClassName(myelement),
+                    strict_locator : request.add.locator,
+                    locator : {
+                      type : "link",
+                      value : request.add.locator.substring(request.add.locator.indexOf('link=')),
+                      tag_name : myelement.tagName
+                    },
+                    frameName : getFrameName(myelement)
+                  };
+                  
+
+                    res.push(locator1);
+
+                } else if(request.add.locator.startsWith('css=')>0){
+
+                  var locator1 = {
+                    name : name1,
+                    class : getClassName(myelement),
+                    strict_locator : request.add.locator,
+                    locator : {
+                      type : "css",
+                      value : request.add.locator.substring(request.add.locator.indexOf('css=')),
+                      tag_name : myelement.tagName
+                     },
+                     frameName : getFrameName(myelement) 
+                    };
+                    
+                    res.push(locator1);
+                } else if(request.add.locator.startsWith('xpath=')>0){
+
+                  var locator1 = {
+                    name : name1,
+                    class : getClassName(myelement),
+                    strict_locator : request.add.locator,
+                    locator : {
+                      type : "xpath",
+                      value : request.add.locator.substring(request.add.locator.indexOf('xpath=')),
+                      tag_name : myelement.tagName
+                      },
+                      frameName : getFrameName(myelement)
+                    };
+                    res.push(locator1);
+                    
+
+                } else if(request.add.locator.startsWith('//')>0){
+
+                  var locator1 = {
+                    name : name1,
+                    class : getClassName(myelement),
+                    strict_locator : request.add.locator,
+                    locator : {
+                      type: "xpath",
+                      value : request.add.locator,
+                      tag_name : myelement.tagName
+                      },
+                      frameName : getFrameName(myelement)
+                    };
+                    
+                    res.push(locator1);
+                }
+
+                
+              
+            
+
+          newArr.push({ "key":name1, "value":res});
+          
+	        
+	        chrome.storage.sync.set({"info": newArr }, function() {
+
+          });
+          chrome.runtime.sendMessage({greeting: "hello","info":newArr}, function(response) {
+            console.log(response.farewell);
+          });
+
+        });
+
+      
+      }
+    
+    } else if(request.greeting.info && request.greeting.info.length>0){
     for(var i =0;i< request.greeting.info.length;i++){
       var value =request.greeting.info[i];
       for(var j =0;j< value.value.length;j++){
@@ -30,7 +162,40 @@ chrome.runtime.onMessage.addListener(
 
 
       
+   function getLocator(locator){
+    var doc=null;
 
+    if(locator.startsWith('id=')){
+      doc = document.getElementById(locator.value.substring(locator.indexOf("=")+1))
+        if(doc!=null){
+            return doc;
+        }
+
+    }else if (locator.startsWith('name=')){
+        if((doc =document.getElementsByName(locator.substring(locator.indexOf("=")+1))).length >0){
+            return doc[0];
+        }
+    }else if (locator.startsWith('css=')){
+        if((doc= document.querySelector(locator.substring(locator.indexOf("=")+1)))!=null){
+            return doc;
+        }
+    }else if (locator.startsWith('xpath=')){
+        if((doc = document.evaluate(locator.substring(locator.indexOf("=")+1), document, null, XPathResult.ANY_TYPE, null).iterateNext())!=null){
+            return doc;
+        }
+    }else if (locator.startsWith('//')){
+        if((doc=document.evaluate(locator, document, null, XPathResult.ANY_TYPE, null).iterateNext())!=null){
+            return doc;
+        }
+    }else if (locator.startsWith('link')){
+        if((doc=document.evaluate("//a[text()='"+locator.substring(locator.indexOf("=")+1)+"']", document, null, XPathResult.ANY_TYPE, null).iterateNext())!=null){
+            return doc;
+        }
+
+    }
+
+    return doc;
+}
     
   
   function checkLocatorExists(locator){
