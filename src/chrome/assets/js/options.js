@@ -1,39 +1,14 @@
 function getElements() {
     return {
-        attributes: {
-            indent: $('[id="attributes.indent"]'),
-            letter: $('[id="attributes.letter"]'),
-            separator: $('[id="attributes.separator"]')
+        gitcommit: {
+            user: $('[id="gitcommit.user"]'),
+            email: $('[id="gitcommit.email"]'),
+            message: $('[id="gitcommit.message"]')
         },
         git: {
             repo: $('[id="git.repo"]'),
             user: $('[id="git.user"]'),
             key: $('[id="git.key"]')
-        },
-        fill: {
-            separator: $('[id="fill.separator"]')
-        },
-        model: {
-            include: $('[id="model.include"]'),
-            namespace: $('[id="model.namespace"]')
-        },
-        nodes: {
-            angular: $('[id="nodes.angular"]'),
-            root: $('[id="nodes.root"]'),
-            selector: $('[id="nodes.selector"]'),
-            visibility: $('[id="nodes.visibility"]')
-        },
-        notify: $('.notify'),
-        operations: {
-            extras: {
-                fill: $('[id="operations.fill"]'),
-                'fill.submit': $('[id="operations.fill.submit"]'),
-                submit: $('[id="operations.submit"]'),
-                'verify.loaded': $('[id="operations.verify.loaded"]'),
-                'verify.url': $('[id="operations.verify.url"]')
-            },
-            letter: $('[id="operations.letter"]'),
-            separator: $('[id="operations.separator"]')
         },
         restore: $('button.restore'),
         save: $('button.save'),
@@ -72,40 +47,13 @@ function pull(elements, target) {
         return;
     }
 
-    target.config.attributes.indent = elements.attributes.indent.get(0).checked;
-    target.config.attributes.letter = elements.attributes.letter.val();
-    target.config.attributes.separator = elements.attributes.separator.val().
-        replace(/\\n/g, '\n');
+    target.config.gitcommit.user = elements.gitcommit.user.val();
+    target.config.gitcommit.email = elements.gitcommit.email.val();
+    target.config.gitcommit.message = elements.gitcommit.message.val();
 
     target.config.git.repo = elements.git.repo.val();
     target.config.git.user = elements.git.user.val();
     target.config.git.key = elements.git.key.val();
-
-    target.config.fill.separator = elements.fill.separator.val().
-        replace(/\\n/g, '\n');
-
-    target.config.model.namespace = elements.model.namespace.val();
-    target.config.model.include = elements.model.include.get(0).checked;
-
-    target.config.nodes.angular = elements.nodes.angular.get(0).checked;
-    target.config.nodes.root = elements.nodes.root.val();
-    target.config.nodes.selector = elements.nodes.selector.val();
-    target.config.nodes.visibility = elements.nodes.visibility.val();
-
-    target.config.operations.extras.fill = elements.operations.extras.fill.
-        get(0).checked;
-    target.config.operations.extras['fill.submit'] = elements.operations.
-        extras['fill.submit'].get(0).checked;
-    target.config.operations.extras.submit = elements.operations.extras.
-        submit.get(0).checked;
-    target.config.operations.extras['verify.loaded'] = elements.operations.
-        extras['verify.loaded'].get(0).checked;
-    target.config.operations.extras['verify.url'] = elements.operations.
-        extras['verify.url'].get(0).checked;
-
-    target.config.operations.letter = elements.operations.letter.val();
-    target.config.operations.separator = elements.operations.separator.val().
-        replace(/\\n/g, '\n');
 
     target.config.timeout = elements.timeout.val();
     target.template = elements.template.val();
@@ -116,43 +64,16 @@ function push(elements, target) {
         return;
     }
 
-    elements.attributes.indent.get(0).checked = !!target.config.
-        attributes.indent;
-    elements.attributes.letter.val(target.config.attributes.letter);
-    elements.attributes.separator.val(target.config.attributes.
-        separator.replace(/\n/g, '\\n'));
+    elements.gitcommit.user.val(target.config.
+        gitcommit.user);
+    elements.gitcommit.email.val(target.config.gitcommit.email);
+    elements.gitcommit.message.val(target.config.gitcommit.message);
 
     elements.git.repo.val(target.config.git.repo);
     elements.git.user.val(target.config.git.user);
     elements.git.key.val(target.config.git.key);
 
-    elements.fill.separator.val(target.config.fill.separator.
-        replace(/\n/g, '\\n'));
-
-    elements.model.namespace.val(target.config.model.namespace);
-    elements.model.include.get(0).checked = !!target.config.
-        model.include;
-
-    elements.nodes.angular.get(0).checked = !!target.config.
-        nodes.angular;
-    elements.nodes.root.val(target.config.nodes.root);
-    elements.nodes.selector.val(target.config.nodes.selector);
-    elements.nodes.visibility.val(target.config.nodes.visibility);
-
-    elements.operations.extras.fill.get(0).checked = !!target.config.
-        operations.extras.fill;
-    elements.operations.extras['fill.submit'].get(0).checked = !!target.config.
-        operations.extras['fill.submit'];
-    elements.operations.extras.submit.get(0).checked = !!target.config.
-        operations.extras.submit;
-    elements.operations.extras['verify.loaded'].get(0).checked = !!target.config.
-        operations.extras['verify.loaded'];
-    elements.operations.extras['verify.url'].get(0).checked = !!target.config.
-        operations.extras['verify.url'];
-
-    elements.operations.letter.val(target.config.operations.letter);
-    elements.operations.separator.val(target.config.operations.
-        separator.replace(/\n/g, '\\n'));
+    
 
     elements.timeout.val(target.config.timeout);
     elements.template.val(target.template);

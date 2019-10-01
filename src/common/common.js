@@ -183,15 +183,15 @@
         setDefaultValues: function(input) {
             input = input || {};
             // attributes
-            input.attributes = input.attributes || {};
-            input.attributes.letter = input.attributes.letter ||
-                this.getDefaultValue('attributes_letter', root.LETTERS.CAMEL);
-            input.attributes.indent = !!input.attributes.indent;
-            if (!input.attributes.indent) {
-                input.attributes.indent = !!this.getDefaultValue('attributes_indent', false);
-            }
-            input.attributes.separator = this.defaults(input.attributes.separator,
-                this.getDefaultValue('attributes_separator', '\n'));
+            
+            // copyright
+            input.gitcommit = input.git || {};
+            input.gitcommit.user = input.gitcommit.user ||
+                this.getDefaultValue('gitcommit_user', '');
+            input.gitcommit.email = input.gitcommit.email ||
+                this.getDefaultValue('gitcommit_email', '');
+            input.gitcommit.message = input.gitcommit.message ||
+                this.getDefaultValue('gitcommit_message', '');
 
             // copyright
             input.git = input.git || {};

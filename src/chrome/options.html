@@ -10,29 +10,21 @@
             <select id="target"></select>
         </fieldset>
         <fieldset>
-            <legend>Attributes</legend>
-            <div class="left">
+                <legend>Git Commit Details</legend>
                 <ul>
                     <li>
-                        <label for="attributes.letter">Letter Case:</label>
-                        <select id="attributes.letter">
-                            <option value="3">Camel</option>
-                            <option value="2">Lower</option>
-                            <option value="4">Natural</option>
-                            <option value="5">Proper</option>
-                            <option value="6">Upper</option>
-                        </select>
+                        <label for="gitcommit.user">Name</label>
+                        <input type="text" id="gitcommit.user" value="">
                     </li>
                     <li>
-                        <label for="attributes.indent">Indent:</label>
-                        <input type="checkbox" id="attributes.indent">
+                        <label for="gitcommit.email">Email</label>
+                        <input type="text" id="gitcommit.email" value="">
+                    </li>
+                    <li>
+                        <label for="gitcommit.message">Commit Message</label>
+                        <input type="text" id="gitcommit.message" value="">
                     </li>
                 </ul>
-            </div>
-            <div class="right valign">
-                <label for="attributes.separator">Separator:</label>
-                <input type="text" id="attributes.separator" value="">
-            </div>
         </fieldset>
         <fieldset>
             <legend>Git Repo Integration</legend>
@@ -51,97 +43,7 @@
                 </li>
             </ul>
         </fieldset>
-        <fieldset>
-            <legend>Fill</legend>
-            <label for="fill.separator">Separator:</label>
-            <input type="text" id="fill.separator" value="">
-        </fieldset>
-        <fieldset>
-            <legend>Model</legend>
-            <ul>
-                <li>
-                    <label for="model.namespace">Namespace:</label>
-                    <input type="text" id="model.namespace" value="">
-                </li>
-                <li>
-                    <label for="model.include">Include namespace in filename:</label>
-                    <input type="checkbox" id="model.include">
-                </li>
-            </ul>
-        </fieldset>
-        <fieldset>
-            <legend>Nodes</legend>
-            <div class="left">
-                <ul>
-                    <li>
-                        <label for="nodes.angular">Test Framework Has AngularJS Locators Support:</label>
-                        <input type="checkbox" id="nodes.angular">
-                    </li>
-                    <li>
-                        <label for="nodes.root">Root Selector:</label>
-                        <input type="text"  id="nodes.root" value="">
-                    </li>
-                </ul>
-            </div>
-            <div class="right">
-                <ul>
-                    <li>
-                        <label for="nodes.selector">Selector:</label>
-                        <input type="text" id="nodes.selector" value="">
-                    </li>
-                    <li>
-                        <label for="nodes.visibility">Visibility:</label>
-                        <select id="nodes.visibility">
-                            <!--<option value="1">Hidden</option>-->
-                            <option value="2">Visible</option>
-                            <option value="3">All</option>
-                        </select>
-                    </li>
-                </ul>
-            </div>
-        </fieldset>
-        <fieldset>
-            <legend>Operations</legend>
-            <ul>
-                <li>
-                    <label for="operations.fill">Include Fill:</label>
-                    <input type="checkbox" id="operations.fill">
-                </li>
-                <li>
-                    <label for="operations.fill.submit">Include Fill and Submit:</label>
-                    <input type="checkbox" id="operations.fill.submit">
-                </li>
-                <li>
-                    <label for="operations.submit">Include Submit:</label>
-                    <input type="checkbox" id="operations.submit">
-                </li>
-                <li>
-                    <label for="operations.verify.loaded">Include Verify Page Loaded:</label>
-                    <input type="checkbox" id="operations.verify.loaded">
-                </li>
-                <li>
-                    <label for="operations.verify.url">Include Verify Page URL:</label>
-                    <input type="checkbox" id="operations.verify.url">
-                </li>
-                <li>
-                    <div class="left">
-                        <label for="operations.letter">Letter Case:</label>
-                        <select id="operations.letter">
-                            <option value="3">Camel</option>
-                            <option value="2">Lower</option>
-                            <option value="4">Natural</option>
-                            <option value="5">Proper</option>
-                            <option value="6">Upper</option>
-                        </select>
-                    </div>
-                    <div class="right">
-                        <label for="operations.separator">Separator:</label>
-                        <input type="text" id="operations.separator" value="">
-                    </div>
-                </li>
-            </ul>
-        </fieldset>
-        <fieldset>
+               <fieldset>
             <legend>Timeout</legend>
             <input type="text" id="timeout" value="">
         </fieldset>
