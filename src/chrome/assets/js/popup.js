@@ -224,7 +224,7 @@ $(document).ready(function() {
             
         }
 
-        getRootTree("master",target.config.git.user,target.config.git.key,target.config.git.repo,getRootTreeCallBack);
+        getRootTree(target.config.git.branch,target.config.git.user,target.config.git.key,target.config.git.repo,getRootTreeCallBack);
 
     });
 
@@ -392,8 +392,9 @@ function gitUpload(file, content, git,gitcommit, sha)
     if(sha==null){
         data = {
             "message": gitcommit.message,
+            "branch":git.branch,
             "committer": {
-            "name": gitcommit.name,
+            "name": gitcommit.user,
             "email": gitcommit.email
             },
             "content": btoa(content)
@@ -402,6 +403,7 @@ function gitUpload(file, content, git,gitcommit, sha)
     }else{
         data = {
             "message": gitcommit.message,
+            "branch": git.branch,
             "committer": {
             "name": gitcommit.user,
             "email": gitcommit.email
@@ -415,14 +417,15 @@ function gitUpload(file, content, git,gitcommit, sha)
 
     var json = JSON.stringify(data);
 
-
+    alert(url+file)
+    alert(json)
     var xhr = new XMLHttpRequest();
     xhr.open("PUT", url+file, true);
     xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
     xhr.setRequestHeader ("Authorization", "Basic " + btoa(git.user + ":" + git.key));
 
     xhr.onload = function () {
-        var users = JSON.parse(xhr.responseText);
+        var users = JSON.parse(xhr.responseText);   
         if (xhr.readyState == 4 && xhr.status == "200") {
             alert(JSON.stringify(users));
         } else {
@@ -436,10 +439,10 @@ function getFileShah(file, content,git,gitcommit)
 {
 
     // Update a user
-    var url = git.repo+"/contents/";
+    var url = git.repo+"/contents/"+file+"?ref="+git.branch;
 
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", url+file, true);
+    xhr.open("GET", url, true);
     xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
     xhr.setRequestHeader ("Authorization", "Basic " + btoa(git.user + ":" + git.key));
 
@@ -447,9 +450,11 @@ function getFileShah(file, content,git,gitcommit)
         
         var users = JSON.parse(xhr.responseText);
         if (xhr.readyState == 4 && xhr.status == "200") {
+            alert(JSON.stringify(users))
 
             gitUpload(file, content, git,gitcommit,users.sha);
         } else {
+            alert(JSON.stringify(users))
             gitUpload(file, content, git,gitcommit,null);
         }
     }

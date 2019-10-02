@@ -140,14 +140,16 @@ chrome.runtime.onMessage.addListener(
       }
     
     } else if(request.greeting.info && request.greeting.info.length>0){
+      alert('coming in')
+
     for(var i =0;i< request.greeting.info.length;i++){
+
       var value =request.greeting.info[i];
-      for(var j =0;j< value.value.length;j++){
      
-        if(checkLocatorExists(value.value[j].locator)== false){
+        if(checkLocatorExists(value.value[0].locator)== false){
           return;
         }
-      }
+      
     }
 
     chrome.storage.sync.set({"info": request.greeting.info }, function() {
@@ -166,6 +168,8 @@ chrome.runtime.onMessage.addListener(
 
       
    function getLocator(locator){
+
+     alert(JSON.stringify(locator))
     var doc=null;
 
     if(locator.startsWith('id=')){
@@ -202,6 +206,8 @@ chrome.runtime.onMessage.addListener(
     
   
   function checkLocatorExists(locator){
+    alert(JSON.stringify())
+      try{
   
       if(locator.type =='id'){
           if(document.getElementById(locator.value.substring(locator.value.indexOf("=")+1))!=null){
@@ -216,11 +222,11 @@ chrome.runtime.onMessage.addListener(
           if(document.querySelector(locator.value.substring(locator.value.indexOf("=")+1))!=null){
               return true;
           }
-      }else if (locator.type == 'xpath'){
+      }else if (locator.type == 'xpath' && locator.value.startsWith('xpath=')){
           if(document.evaluate(locator.value.substring(locator.value.indexOf("=")+1), document, null, XPathResult.ANY_TYPE, null).iterateNext()!=null){
               return true
           }
-      }else if (locator.type == '//'){
+      }else if (locator.type == 'xpath' && locator.value.startsWith('//')){
           if(document.evaluate(locator.value, document, null, XPathResult.ANY_TYPE, null).iterateNext()!=null){
               return true
           }
@@ -230,6 +236,10 @@ chrome.runtime.onMessage.addListener(
           }
   
       }
+    }catch(err){
+      console.log(err)
+      return false;
+    }
   
       return false;
     }
@@ -321,7 +331,10 @@ function action (myelement) {
         
 	        // Call the specified callback, passing
 	        // the web-page's DOM content as argument
-	        var name1 = prompt('what is the name of the element?');
+          var name1 = prompt('what is the name of the element?');
+          if(name == null){
+            return;
+          }
           var abc;
          
 
@@ -421,6 +434,7 @@ function action (myelement) {
                       },
                       frameName : getFrameName(myelement)
                     };
+                    res.push(locator1);
                     
 
                 } else if(abc[i].startsWith('//')>0){
@@ -704,7 +718,7 @@ LocatorBuilders.prototype.getCSSSubPath = function(e) {
         return '#' + value;
       if (attr == 'class')
         return e.nodeName.toLowerCase() + '.' + value.replace(" ", ".").replace("..", ".");
-      return e.nodeName.toLowerCase() + "[" + attr + "='" + value + "']";
+      return e.nodeName.toLowerCase() + '[' + attr + '="' + value + '"]';
     }
   }
   if (this.getNodeNbr(e))

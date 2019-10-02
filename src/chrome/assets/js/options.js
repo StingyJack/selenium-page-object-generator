@@ -8,7 +8,8 @@ function getElements() {
         git: {
             repo: $('[id="git.repo"]'),
             user: $('[id="git.user"]'),
-            key: $('[id="git.key"]')
+            key: $('[id="git.key"]'),
+            branch: $('[id="git.branch"]')
         },
         restore: $('button.restore'),
         save: $('button.save'),
@@ -54,6 +55,7 @@ function pull(elements, target) {
     target.config.git.repo = elements.git.repo.val();
     target.config.git.user = elements.git.user.val();
     target.config.git.key = elements.git.key.val();
+    target.config.git.branch = elements.git.branch.val();
 
     target.config.timeout = elements.timeout.val();
     target.template = elements.template.val();
@@ -72,6 +74,8 @@ function push(elements, target) {
     elements.git.repo.val(target.config.git.repo);
     elements.git.user.val(target.config.git.user);
     elements.git.key.val(target.config.git.key);
+    elements.git.branch.val(target.config.git.branch);
+
 
     
 

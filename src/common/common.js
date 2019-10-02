@@ -185,7 +185,7 @@
             // attributes
             
             // copyright
-            input.gitcommit = input.git || {};
+            input.gitcommit = input.gitcommit || {};
             input.gitcommit.user = input.gitcommit.user ||
                 this.getDefaultValue('gitcommit_user', '');
             input.gitcommit.email = input.gitcommit.email ||
@@ -201,6 +201,9 @@
                 this.getDefaultValue('git_user', '');
             input.git.key = input.git.key ||
                 this.getDefaultValue('git_key', '');
+
+            input.git.branch = input.git.branch ||
+                this.getDefaultValue('git_branch', '');
 
             // fill
             input.fill = input.fill || {};
