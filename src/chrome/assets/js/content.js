@@ -27,6 +27,7 @@ chrome.runtime.onMessage.addListener(
                     name : name1,
                     class : getClassName(myelement),
                     strict_locator : request.add.locator,
+                    page_verification : request.add.pageVer,
                     locator : {
                       type : "id",
                       value : request.add.locator.substring(request.add.locator.indexOf('id=')),
@@ -43,6 +44,7 @@ chrome.runtime.onMessage.addListener(
                     name : name1,
                     class : getClassName(myelement),
                     strict_locator : request.add.locator,
+                    page_verification : request.add.pageVer,
                     locator : {
                       type : "name",
                       value : request.add.locator.substring(request.add.locator.indexOf('name=')),
@@ -61,6 +63,7 @@ chrome.runtime.onMessage.addListener(
                     name : name1,
                     class : getClassName(myelement),
                     strict_locator : request.add.locator,
+                    page_verification : request.add.pageVer,
                     locator : {
                       type : "link",
                       value : request.add.locator.substring(request.add.locator.indexOf('link=')),
@@ -78,6 +81,7 @@ chrome.runtime.onMessage.addListener(
                     name : name1,
                     class : getClassName(myelement),
                     strict_locator : request.add.locator,
+                    page_verification : request.add.pageVer,
                     locator : {
                       type : "css",
                       value : request.add.locator.substring(request.add.locator.indexOf('css=')),
@@ -93,6 +97,7 @@ chrome.runtime.onMessage.addListener(
                     name : name1,
                     class : getClassName(myelement),
                     strict_locator : request.add.locator,
+                    page_verification : request.add.pageVer,
                     locator : {
                       type : "xpath",
                       value : request.add.locator.substring(request.add.locator.indexOf('xpath=')),
@@ -109,6 +114,7 @@ chrome.runtime.onMessage.addListener(
                     name : name1,
                     class : getClassName(myelement),
                     strict_locator : request.add.locator,
+                    page_verification : request.add.pageVer,
                     locator : {
                       type: "xpath",
                       value : request.add.locator,
@@ -121,9 +127,6 @@ chrome.runtime.onMessage.addListener(
                 }
 
                 
-              
-            
-
           newArr.push({ "key":name1, "value":res});
           
 	        
@@ -137,39 +140,39 @@ chrome.runtime.onMessage.addListener(
         });
 
       
+      }else {
+        alert('The locator could not identify any html element in the current page');
       }
     
     } else if(request.greeting.info && request.greeting.info.length>0){
-      alert('coming in')
 
-    for(var i =0;i< request.greeting.info.length;i++){
+      for(var i =0;i< request.greeting.info.length;i++){
 
-      var value =request.greeting.info[i];
-     
-        if(checkLocatorExists(value.value[0].locator)== false){
-          return;
-        }
+        var value =request.greeting.info[i];
       
-    }
+          if(value.value[0].page_verification=false || checkLocatorExists(value.value[0].locator)== false){
+            return;
+          }
+        
+      }
 
-    chrome.storage.sync.set({"info": request.greeting.info }, function() {
+      chrome.storage.sync.set({"info": request.greeting.info }, function() {
 
-    });
-    chrome.storage.sync.set({"title": request.greeting.name }, function() {
+      });
+      chrome.storage.sync.set({"title": request.greeting.name }, function() {
 
-    });
-    
+      });
+      
 
-    chrome.runtime.sendMessage({greeting: "bolo","info":request.greeting.info}, function(response) {
+      chrome.runtime.sendMessage({greeting: "bolo","info":request.greeting.info}, function(response) {
 
-    });
+      });
    }
 
 
       
    function getLocator(locator){
 
-     alert(JSON.stringify(locator))
     var doc=null;
 
     if(locator.startsWith('id=')){
@@ -206,7 +209,6 @@ chrome.runtime.onMessage.addListener(
     
   
   function checkLocatorExists(locator){
-    alert(JSON.stringify())
       try{
   
       if(locator.type =='id'){
@@ -332,9 +334,11 @@ function action (myelement) {
 	        // Call the specified callback, passing
 	        // the web-page's DOM content as argument
           var name1 = prompt('what is the name of the element?');
-          if(name == null){
+          if(name1 == null){
             return;
           }
+          var pageVer = confirm('Do you want to add this element as page verification element?');
+
           var abc;
          
 
@@ -361,6 +365,7 @@ function action (myelement) {
                     name : name1,
                     class : getClassName(myelement),
                     strict_locator : abc[i],
+                    page_verification : pageVer,
                     locator : {
                       type : "id",
                       value : abc[i].substring(abc[i].indexOf('id=')),
@@ -377,6 +382,7 @@ function action (myelement) {
                     name : name1,
                     class : getClassName(myelement),
                     strict_locator : abc[i],
+                    page_verification : pageVer,
                     locator : {
                       type : "name",
                       value : abc[i].substring(abc[i].indexOf('name=')),
@@ -395,6 +401,7 @@ function action (myelement) {
                     name : name1,
                     class : getClassName(myelement),
                     strict_locator : abc[i],
+                    page_verification : pageVer,
                     locator : {
                       type : "link",
                       value : abc[i].substring(abc[i].indexOf('link=')),
@@ -412,6 +419,7 @@ function action (myelement) {
                     name : name1,
                     class : getClassName(myelement),
                     strict_locator : abc[i],
+                    page_verification : pageVer,
                     locator : {
                       type : "css",
                       value : abc[i].substring(abc[i].indexOf('css=')),
@@ -427,6 +435,7 @@ function action (myelement) {
                     name : name1,
                     class : getClassName(myelement),
                     strict_locator : abc[i],
+                    page_verification : pageVer,
                     locator : {
                       type : "xpath",
                       value : abc[i].substring(abc[i].indexOf('xpath=')),
@@ -443,6 +452,7 @@ function action (myelement) {
                     name : name1,
                     class : getClassName(myelement),
                     strict_locator : abc[i],
+                    page_verification : pageVer,
                     locator : {
                       type: "xpath",
                       value : abc[i],

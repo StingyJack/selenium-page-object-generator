@@ -10,7 +10,8 @@
     "git":{
         "user":"sfakrudeen78",
         "repo":"https://api.github.com/repos/sfakrudeen78/calculator-unit-test-example-java",
-        "key":"480c9549016460f3d2d774d88a5b373e48f4b037"
+        "key":"",
+        "branch": "master"
 
     },"gitcommit":{
         "user":"Fakrudeen Shahul",

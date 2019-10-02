@@ -126,14 +126,16 @@ $(document).ready(function() {
 
     $('button.add').click(function(e) {
         var target = storage.targets[elements.target.val()];
+
         e.preventDefault();
         ga('send', 'event', 'options', 'click');
         var name = prompt('what is the name of the element?');
         var locator = prompt('what is the locator of the element?');
+        var pageVer = confirm('Do you want to add this element as Page validation element?');
 
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 
-            chrome.tabs.sendMessage(tabs[0].id, { add: { name: name, locator: locator}});
+            chrome.tabs.sendMessage(tabs[0].id, { add: { name: name, locator: locator, pageVer: pageVer}});
           });
 
 
@@ -146,6 +148,13 @@ $(document).ready(function() {
         e.preventDefault();
         ga('send', 'event', 'options', 'click');
         var files =[];
+
+
+        if(target.config.git.user != "" || target.config.git.key!=""){
+            alert('Please enter the Git Repository Details in the Options Section........ to use this feature');
+            return;
+
+        }
 
         function getRootTreeCallBack(sha){
             if(sha!=null){
@@ -318,12 +327,19 @@ $(document).ready(function() {
 
 
         chrome.storage.sync.get(["info"], function (result) {
-           
 
+            if(!result.info || result.info.length ==0){
+                alert('No locators availabe to create page object file')
+                return;
+            }
+           
+            var meta = escape(JSON.stringify(result.info));
 
             for (let i = 0; i < result.info.length; i++) {
 
                 var locator_temp = result.info[i].value[$("#modelname" + i).val()].strict_locator;
+                var loc_val = result.info[i].value[$("#modelname" + i).val()].locator.value
+                loc_val =loc_val.split('"').join('\\"');
                
                 var resulting = {
 
@@ -332,10 +348,10 @@ $(document).ready(function() {
                     cName: result.info[i].key.charAt(0).toUpperCase() + result.info[i].key.slice(1),
 
 
-                    locator: locator_temp,
+                    locator: locator_temp.split('"').join('\\"'),
                     frameName: result.info[i].value[$("#modelname" + i).val()].frameName,
                     locator_type: result.info[i].value[$("#modelname" + i).val()].locator.type,
-                    locator_value: result.info[i].value[$("#modelname" + i).val()].locator.value,
+                    locator_value: loc_val,
 
 
 
@@ -356,7 +372,7 @@ $(document).ready(function() {
             var context = {
                 title: storage.model.name,
                 locators: finaldata,
-                metadata : escape(JSON.stringify(result.info))
+                metadata : meta
             };
 
             var target = storage.targets[storage.target];
@@ -366,7 +382,7 @@ $(document).ready(function() {
             
             var fileName = storage.model.name + '.' + storage.target;
 
-            if(target.config.git.user != ""){
+            if(target.config.git.user != "" && target.config.git.key!=""){
             
 
                 getFileShah(fileName, generated,target.config.git,target.config.gitcommit);
@@ -417,8 +433,6 @@ function gitUpload(file, content, git,gitcommit, sha)
 
     var json = JSON.stringify(data);
 
-    alert(url+file)
-    alert(json)
     var xhr = new XMLHttpRequest();
     xhr.open("PUT", url+file, true);
     xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
@@ -427,7 +441,7 @@ function gitUpload(file, content, git,gitcommit, sha)
     xhr.onload = function () {
         var users = JSON.parse(xhr.responseText);   
         if (xhr.readyState == 4 && xhr.status == "200") {
-            alert(JSON.stringify(users));
+            alert(file+' is successfully updated to Github repository');
         } else {
             alert(JSON.stringify(xhr.responseText));
         }
