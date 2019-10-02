@@ -145,6 +145,7 @@ $(document).ready(function() {
         var target = storage.targets[elements.target.val()];
         e.preventDefault();
         ga('send', 'event', 'options', 'click');
+        var files =[];
 
         function getRootTreeCallBack(sha){
             if(sha!=null){
@@ -158,17 +159,17 @@ $(document).ready(function() {
             }
 
         }
-        function getFileContentCallback(content,type){
+        function getFileContentCallback(content,type,fileName){
             //TODO
             if(type == "java"){
-                commentsToJson(content);
+                commentsToJson(content,fileName);
             }else if (type == "json"){
-                metaDataToJson(content);
+                metaDataToJson(content,fileName);
 
             }
             
         }
-        function metaDataToJson(content){
+        function metaDataToJson(content,fileName){
 
             var temp = JSON.parse(content);
 
@@ -178,7 +179,7 @@ $(document).ready(function() {
                 if(meta){
                     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 
-                        chrome.tabs.sendMessage(tabs[0].id, {greeting: {info:meta}});
+                        chrome.tabs.sendMessage(tabs[0].id, {greeting: {info:meta,name:fileName}});
                       });
                 }
             }
@@ -191,13 +192,14 @@ $(document).ready(function() {
 
         
 
-        function commentsToJson(content){
+        function commentsToJson(content,fileName){
             var res = getComments(content);
 
             if(res != null){
+                var meta = JSON.parse(unescape(res.metadata))
                 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 
-                    chrome.tabs.sendMessage(tabs[0].id, {greeting: res});
+                    chrome.tabs.sendMessage(tabs[0].id, {greeting: {info:meta,name:fileName}});
                   });
 
             }
@@ -229,18 +231,27 @@ $(document).ready(function() {
     chrome.runtime.onMessage.addListener(
         function(request, sender, sendResponse) {
           if (request.greeting == "hello"){
-
+ 
             chrome.storage.sync.get(["info"], function (result) {
 
                 drawControls(result)
+
             });
             
 
           }else if(request.greeting  == "bolo"){
             
-            chrome.storage.sync.get(["info"], function (result) {
+            
+            chrome.storage.sync.get(["title"], function (result) {
+                var res = confirm("Current displayed page is matched with page with name = "+result.title+". Do you want to use this page");
 
-                drawControls(result);
+                if(res == true){
+                    elements.model.name.val(result.title);
+                    chrome.storage.sync.get(["info"], function (result) {
+
+                        drawControls(result);
+                    });
+                }
             });
            
             
@@ -307,7 +318,6 @@ $(document).ready(function() {
 
 
         chrome.storage.sync.get(["info"], function (result) {
-            
            
 
 
@@ -319,6 +329,7 @@ $(document).ready(function() {
 
                     name: result.info[i].key,
                     class: result.info[i].value[$("#modelname" + i).val()].class, //TO-DO
+                    cName: result.info[i].key.charAt(0).toUpperCase() + result.info[i].key.slice(1),
 
 
                     locator: locator_temp,
@@ -334,6 +345,12 @@ $(document).ready(function() {
                 finaldata.push(resulting);
                 
 
+            }
+
+            for (let i = 0; i < result.info.length; i++) {
+                var tempVal = result.info[i].value[$("#modelname" + i).val()];
+                result.info[i].value.splice($("#modelname" + i).val(),1);
+                result.info[i].value.unshift(tempVal);
             }
 
             var context = {
@@ -352,7 +369,7 @@ $(document).ready(function() {
             if(target.config.git.user != ""){
             
 
-                getFileShah(fileName, generated,target.config.git.user,target.config.git.key,target.config.git.repo);
+                getFileShah(fileName, generated,target.config.git,target.config.gitcommit);
             }
             
             download(elements.downloader, fileName, generated);
@@ -364,30 +381,30 @@ $(document).ready(function() {
 
 
 
-function gitUpload(file, content, username, password,repo, sha)
+function gitUpload(file, content, git,gitcommit, sha)
 {
 
     // Update a user
-    var url = repo+"/contents/";
+    var url = git.repo+"/contents/";
     
     var data;
 
     if(sha==null){
         data = {
-            "message": "my commit message",
+            "message": gitcommit.message,
             "committer": {
-            "name": "Fakrudeen Shahul",
-            "email": "fakrudeen@github.com"
+            "name": gitcommit.name,
+            "email": gitcommit.email
             },
             "content": btoa(content)
             
         };
     }else{
         data = {
-            "message": "my commit message",
+            "message": gitcommit.message,
             "committer": {
-            "name": "Fakrudeen Shahul",
-            "email": "fakrudeen@github.com"
+            "name": gitcommit.user,
+            "email": gitcommit.email
             },
             "content": btoa(content),
             sha
@@ -395,8 +412,6 @@ function gitUpload(file, content, username, password,repo, sha)
         };
 
     }
-      
-    
 
     var json = JSON.stringify(data);
 
@@ -404,7 +419,7 @@ function gitUpload(file, content, username, password,repo, sha)
     var xhr = new XMLHttpRequest();
     xhr.open("PUT", url+file, true);
     xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
-    xhr.setRequestHeader ("Authorization", "Basic " + btoa(username + ":" + password));
+    xhr.setRequestHeader ("Authorization", "Basic " + btoa(git.user + ":" + git.key));
 
     xhr.onload = function () {
         var users = JSON.parse(xhr.responseText);
@@ -417,25 +432,25 @@ function gitUpload(file, content, username, password,repo, sha)
     xhr.send(json);
 };
 
-function getFileShah(file, content,username, password,repo)
+function getFileShah(file, content,git,gitcommit)
 {
 
     // Update a user
-    var url = repo+"/contents/";
+    var url = git.repo+"/contents/";
 
     var xhr = new XMLHttpRequest();
     xhr.open("GET", url+file, true);
     xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
-    xhr.setRequestHeader ("Authorization", "Basic " + btoa(username + ":" + password));
+    xhr.setRequestHeader ("Authorization", "Basic " + btoa(git.user + ":" + git.key));
 
     xhr.onload = function () {
         
         var users = JSON.parse(xhr.responseText);
         if (xhr.readyState == 4 && xhr.status == "200") {
 
-            gitUpload(file, content, username, password,repo,users.sha);
+            gitUpload(file, content, git,gitcommit,users.sha);
         } else {
-            gitUpload(file, content, username, password,repo,null);
+            gitUpload(file, content, git,gitcommit,null);
         }
     }
     xhr.send(null);
@@ -496,8 +511,11 @@ function getFileList(sha, username, password,repo, cb)
 
 function getFileContent(name, url,username, password,fileType, cb){
     
-    
-    
+    var fileName = name.substring(name.lastIndexOf('/')+1);
+    fileName = fileName.substring(0,fileName.lastIndexOf('.'));
+
+
+
     var xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
     xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
@@ -507,7 +525,7 @@ function getFileContent(name, url,username, password,fileType, cb){
         var content = JSON.parse(xhr.responseText);
         if (xhr.readyState == 4 && xhr.status == "200") {
            
-            cb(atob(content.content),fileType);
+            cb(atob(content.content),fileType,fileName);
         } else {
             cb(null);
         }

@@ -1,3 +1,7 @@
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
 public class {{title}} {
 
     private RemoteWebDriver driver;
@@ -9,14 +13,7 @@ public class {{title}} {
 
     /*PO
     {
-        "title":"{{title}}",
-        "info":[
-        {{#list locators}}
-        {"key":"{{{name}}}","value":[{{{info}}}]}
-        
-        {{/list}}
-
-        ]
+        "metadata":"{{{metadata}}}"
     }
 
     PO*/
@@ -27,7 +24,7 @@ public class {{title}} {
     {{/list}}
 
     {{#list locators}}
-    public RemoteWebElement get{{{name}}}(){
+    public RemoteWebElement get{{{cName}}}(){
         return driver.findElement({{{name}}});
     }      
     {{/list}}

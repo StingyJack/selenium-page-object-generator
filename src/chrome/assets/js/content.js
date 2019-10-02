@@ -153,6 +153,9 @@ chrome.runtime.onMessage.addListener(
     chrome.storage.sync.set({"info": request.greeting.info }, function() {
 
     });
+    chrome.storage.sync.set({"title": request.greeting.name }, function() {
+
+    });
     
 
     chrome.runtime.sendMessage({greeting: "bolo","info":request.greeting.info}, function(response) {
@@ -701,7 +704,7 @@ LocatorBuilders.prototype.getCSSSubPath = function(e) {
         return '#' + value;
       if (attr == 'class')
         return e.nodeName.toLowerCase() + '.' + value.replace(" ", ".").replace("..", ".");
-      return e.nodeName.toLowerCase() + '[' + attr + '="' + value + '"]';
+      return e.nodeName.toLowerCase() + "[" + attr + "='" + value + "']";
     }
   }
   if (this.getNodeNbr(e))
