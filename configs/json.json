@@ -18,5 +18,9 @@
         "email":"fakrudeen@gmail.com",
         "message":"test commit"
 
+    },"code":{
+        "path":"src/main/resources"
+        
     }
+
 }

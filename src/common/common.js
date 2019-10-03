@@ -205,6 +205,14 @@
             input.git.branch = input.git.branch ||
                 this.getDefaultValue('git_branch', '');
 
+
+
+            input.code = input.code || {};
+            input.code.path = input.code.path ||
+                this.getDefaultValue('code_path', '');
+            input.code.package = input.code.package ||
+                this.getDefaultValue('code_package', '');
+
             // fill
             input.fill = input.fill || {};
             input.fill.separator = input.fill.separator ||

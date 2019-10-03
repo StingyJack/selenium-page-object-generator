@@ -11,6 +11,11 @@ function getElements() {
             key: $('[id="git.key"]'),
             branch: $('[id="git.branch"]')
         },
+        code: {
+            path: $('[id="code.path"]'),
+            package: $('[id="code.package"]')
+            
+        },
         restore: $('button.restore'),
         save: $('button.save'),
         target: $('#target'),
@@ -57,6 +62,10 @@ function pull(elements, target) {
     target.config.git.key = elements.git.key.val();
     target.config.git.branch = elements.git.branch.val();
 
+
+    target.config.code.path = elements.code.path.val();
+    target.config.code.package = elements.code.package.val();
+
     target.config.timeout = elements.timeout.val();
     target.template = elements.template.val();
 }
@@ -77,6 +86,8 @@ function push(elements, target) {
     elements.git.branch.val(target.config.git.branch);
 
 
+    elements.code.path.val(target.config.code.path);
+    elements.code.package.val(target.config.code.package);
     
 
     elements.timeout.val(target.config.timeout);

@@ -385,7 +385,7 @@ $(document).ready(function() {
             if(target.config.git.user != "" && target.config.git.key!=""){
             
 
-                getFileShah(fileName, generated,target.config.git,target.config.gitcommit);
+                getFileShah(fileName, generated,target.config.git,target.config.gitcommit,target.config.code);
             }
             
             download(elements.downloader, fileName, generated);
@@ -397,11 +397,17 @@ $(document).ready(function() {
 
 
 
-function gitUpload(file, content, git,gitcommit, sha)
+function gitUpload(file, content, git,gitcommit,code, sha)
 {
-
+    var path="";
+    if(code.path && code.path!="" ){
+        path = code.path+'/';
+        if(code.package && code.package!=""){
+            path = path +code.package.split('.').join('/')+'/';
+        }
+    }
     // Update a user
-    var url = git.repo+"/contents/";
+    var url = git.repo+"/contents/"+path;
     
     var data;
 
@@ -449,11 +455,17 @@ function gitUpload(file, content, git,gitcommit, sha)
     xhr.send(json);
 };
 
-function getFileShah(file, content,git,gitcommit)
+function getFileShah(file, content,git,gitcommit,code)
 {
-
+    var path="";
+    if(code.path && code.path!="" ){
+        path = code.path+'/';
+        if(code.package && code.package!=""){
+            path = path +code.package.split('.').join('/')+'/'
+        }
+    }
     // Update a user
-    var url = git.repo+"/contents/"+file+"?ref="+git.branch;
+    var url = git.repo+"/contents/"+path+file+"?ref="+git.branch;
 
     var xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
@@ -464,12 +476,10 @@ function getFileShah(file, content,git,gitcommit)
         
         var users = JSON.parse(xhr.responseText);
         if (xhr.readyState == 4 && xhr.status == "200") {
-            alert(JSON.stringify(users))
 
-            gitUpload(file, content, git,gitcommit,users.sha);
+            gitUpload(file, content, git,gitcommit,code,users.sha);
         } else {
-            alert(JSON.stringify(users))
-            gitUpload(file, content, git,gitcommit,null);
+            gitUpload(file, content, git,gitcommit,code,null);
         }
     }
     xhr.send(null);
