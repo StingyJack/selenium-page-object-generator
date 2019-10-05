@@ -1,63 +1,22 @@
-<a target="_blank" href="https://chrome.google.com/webstore/detail/epgmnmcjdhapiojbohkkemlfkegmbebb">![Install from Chrome Web Store](/images/chrome-web-store.png "Click here to install this extension from the Chrome Web Store")</a>
-<a target="_blank" href="https://addons.opera.com/en/extensions/details/selenium-page-object-generator">![Install from Opera Addons Catalog](/images/opera-addons-catalog.png "Click here to install this extension from the Opera Addons Catalog")</a>
-
-
-Selenium Page Object Generator
+Selenium Page Object Helper
 ==============================
 
 A nimble and flexible [Selenium Page Object Model](https://code.google.com/p/selenium/wiki/PageObjects) generator to improve [agile testing](https://en.wikipedia.org/wiki/Agile_testing) [process velocity](https://en.wikipedia.org/wiki/Velocity_(software_development)).
 
-Selenium Page Object Generator is an essential tool to improve your workflow. It will generate [Page Object Model](http://martinfowler.com/bliki/PageObject.html) on active [Chrome](https://www.google.com/chrome/browser/desktop/index.html) or [Opera](http://www.opera.com/) tab with a single click, provided that all of the options and template are configured. The generated Page Object Model will be saved to pre-configured Chrome or Opera download folder.
 
-Selenium Page Object Generator is also available in command line by installing [Node.JS](https://nodejs.org/en/) package from [NPM Registry](https://www.npmjs.com/package/selenium-page-object-generator).
 
 The template is using [Handlebars.js](http://handlebarsjs.com/) expression, a clean logic-less semantic templating language.
 
-This is an early BETA release, it expected to have rough edges, and limited functionality. It currently support 3 different targets: [Java](https://en.wikipedia.org/wiki/Java_(programming_language)), [C#](https://en.wikipedia.org/wiki/C_Sharp_(programming_language)), and [Robot Framework](http://robotframework.org/).
+This is an early BETA release, it expected to have rough edges, and limited functionality. It currently support 2 different targets: Java & Json
 
-For more information on how to use the generated Page Object file:
 
-Java: [https://code.google.com/p/selenium/wiki/PageFactory#The](https://code.google.com/p/selenium/wiki/PageFactory#The)
-
-C#: [http://relevantcodes.com/pageobjects-and-pagefactory-design-patterns-in-selenium/#post-5229](http://relevantcodes.com/pageobjects-and-pagefactory-design-patterns-in-selenium/#post-5229)
-
-Robot Framework: [http://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#taking-resource-files-into-use](http://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#taking-resource-files-into-use)
-
-(You need to use Chrome 40+ or Opera 15+ or Node.JS 5.x to try this out)
+(You need to use Chrome 40+ to try this out)
 
 Installation
 -
 
-- To install the newest released version on Chrome browser, please download it from [Chrome web store](https://chrome.google.com/webstore/detail/epgmnmcjdhapiojbohkkemlfkegmbebb).
-- To install the newest released version on Opera browser, please download it from [Opera addons catalog](https://addons.opera.com/en/extensions/details/selenium-page-object-generator).
-- To install the newest released version on command line, please install [Node.js](https://nodejs.org/) and run command below:
+- To install this plugin download the CRX file from [here](https://github.com/sfakrudeen78/selenium-page-object-generator/releases/download/1.4.0/chrome.crx). Open chrome://extensions/ in your chrome browser and drag and drop the downloaded CRX file to install the Plugin.
 
-```bash
-$ npm install selenium-page-object-generator
-```
-
-Command Line Usage
--
-Selenium Page Object Generator accepts the following command line arguments:
-
-```bash
-selenium-page-object-generator [options]
-
-  -h, --help                                 Show this help message and exit.
-  -v, --version                              Show program's version number and exit.
-  -t, --target {cs,java,robot}               Generator target
-  -n, --name [PageName]                      Page name (no-spaces)
-  -d, --destination [DestinationPageName]    Destination page name (no-spaces) (optional)
-  -s, --source [source.html]                 Source file
-```
-
-Examples
--
-To generate Java page object:
-
-```bash
-$ node_modules/.bin/selenium-page-object-generator -t java -n MySite -s source.html
-```
 
 Development Dependencies
 -
@@ -97,30 +56,27 @@ $ npm run build
 
 The `/dist` folder will contain distribution ready packages.
 
-Contributing
+How to use this plugin
 -
-If you would like to contribute code to Selenium Page Object Generator project you can do so through GitHub by forking the repository and sending a pull request.
+Note : When ever page object need to be generated, please enable this plugin. Disable this plugin once page object is generated
 
-When submitting code, please make every effort to follow existing conventions and style in order to keep the code as readable as possible. Please also include appropriate test cases.
+Open the Page for which page object need to be generated. Right click the html elements in the page to add those html elements into page objects. Once a html element is right clicked, a dialog box will open to get the name of the locator. Once the name is entered the locator information is added to the plugin. This way we can add all the important html elements in the current page to page object.
+![Screenshot](/images/screenshot1.png)
 
-Before your code can be accepted into the project you must also sign the [Selenium Page Object Generator CLA](https://goo.gl/forms/Bax4dq33Q7) (Individual Contributor License Agreement).
+We have one more option to add html details to the current page object in addition to right clicking the html elements. Once Add button is clicked, a popup will open to get locator details and verify whether html element with the locator specified is available in the current page and then add the correcponding html element details to current page object.
 
-That's it! Thank you for your contribution!
 
-License
--
-Copyright (c) 2015, 2016, 2018 Richard Huang.
+Once all the html elements are added, we can generate page object code snippet by clicking "Generate" button. Currently we can generate page object with Java and Json.
 
-This browser extension is free software, licensed under: [GNU Affero General Public License (AGPL-3.0)](http://www.gnu.org/licenses/agpl-3.0.en.html).
+We can also link Git repository to directly check in the generated page object code snippet.  For this Git repository details need to be provided. This can be done by clicking "Options" button in the Plugin.
 
-Documentation and other similar content are provided under [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-nc-sa/4.0/).
+![Screenshot](/images/screenshot2.png)
 
-Licenses and Acknowledgements for Incorporated Software
--
+In the Options Page we need to fill Git repository details like repo path, user name and key with write access to that repository. Also git commit details like default message, name & email need to be provided.
+Once these configuration details are provided, we can directly push the newly generated page objects to the Git Repository.
 
-- [Handlebars](http://handlebarsjs.com/) is an [open source](http://opensource.org) software provided under [MIT license](http://opensource.org/licenses/MIT).
-- [jQuery](https://jquery.com/) is an [open source](http://opensource.org) software provided under [MIT license](http://opensource.org/licenses/MIT).
+Also when using this option, Using "Find Page" button, we can check and load Page objects that are already created previously for the current displayed page, if it is already available in the linked Git Repository. This feature will help in
+1. find out the page objects that are already created for the current displayed page.
+2. Update or Modify already page objects with the Chrome Plugin itself.
 
-Screenshot
--
-![screenshot](/images/screenshot-opera-1.png)
+
