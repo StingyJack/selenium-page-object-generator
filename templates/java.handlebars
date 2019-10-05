@@ -1,3 +1,5 @@
+package {{{package}}}
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -11,6 +13,8 @@ public class {{title}} {
     }
 
 
+    //PAGE-OBJECT-START
+
     /*PO
     {
         "metadata":"{{{metadata}}}"
@@ -18,15 +22,21 @@ public class {{title}} {
 
     PO*/
 
-    {{#list locators}}
+    
+    {{#javalist locators}}
     private By {{name}} = By.{{{locator_type}}}("{{{locator_value}}}");  
       
-    {{/list}}
+    {{/javalist}}
 
-    {{#list locators}}
+    {{#javalist locators}}
     public RemoteWebElement get{{{cName}}}(){
         return driver.findElement({{{name}}});
     }      
-    {{/list}}
+    {{/javalist}}
+
+    //PAGE-OBJECT-END
+
+
+
 }
 

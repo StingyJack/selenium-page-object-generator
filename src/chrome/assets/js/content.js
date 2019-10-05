@@ -3,6 +3,10 @@ var sam =[];
 chrome.storage.sync.set({ "info": sam }, function() {
 
 });
+var sam =[];
+chrome.storage.sync.set({ "title": "" }, function() {
+
+});
 
 chrome.runtime.onMessage.addListener(
   function(request, sender) {
@@ -149,8 +153,9 @@ chrome.runtime.onMessage.addListener(
       for(var i =0;i< request.greeting.info.length;i++){
 
         var value =request.greeting.info[i];
+
       
-          if(value.value[0].page_verification=false || checkLocatorExists(value.value[0].locator)== false){
+          if(value.value[0].page_verification==false || checkLocatorExists(value.value[0].locator)== false){
             return;
           }
         

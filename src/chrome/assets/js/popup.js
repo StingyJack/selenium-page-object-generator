@@ -72,6 +72,10 @@ $(document).ready(function() {
         ga('send', 'event', 'popup.target', 'change', $(this).val());
     });
 
+    // chrome.storage.sync.set({"title": "" }, function() {
+
+    // });
+
     $('button.options').click(function(e) {
         e.preventDefault();
         ga('send', 'event', 'options', 'click');
@@ -150,7 +154,7 @@ $(document).ready(function() {
         var files =[];
 
 
-        if(target.config.git.user != "" || target.config.git.key!=""){
+        if((target.config.git.user&&target.config.git.user == "") || (target.config.git.key &&target.config.git.key=="")){
             alert('Please enter the Git Repository Details in the Options Section........ to use this feature');
             return;
 
@@ -255,7 +259,14 @@ $(document).ready(function() {
                 var res = confirm("Current displayed page is matched with page with name = "+result.title+". Do you want to use this page");
 
                 if(res == true){
-                    elements.model.name.val(result.title);
+                    if(result && result.title != ""){
+                        storage.model.name = result.title;
+                        var name = result.title;
+                        var fileName = name.substring(name.lastIndexOf('/')+1);
+                        fileName = fileName.substring(0,fileName.lastIndexOf('.'));
+                        elements.model.name.val(fileName);
+            
+                        }
                     chrome.storage.sync.get(["info"], function (result) {
 
                         drawControls(result);
@@ -289,7 +300,10 @@ $(document).ready(function() {
 
     }
 
+    
+
     chrome.storage.sync.get(["info"], function (result) {
+      
 
         drawControls(result)
     });
@@ -298,15 +312,26 @@ $(document).ready(function() {
 
     common.getStorage().always(function(data) {
         storage = data;
+        
 
         for (var key in storage.targets) {
             elements.target.append('<option value="' + key + '">' +
             storage.targets[key].label + '</option>');
         }
 
+        chrome.storage.sync.get(["title"], function (result) {
+            storage.model.name = result.title;
+            if(result && result.title != ""){
+            var name = result.title;
+            var fileName = name.substring(name.lastIndexOf('/')+1);
+            fileName = fileName.substring(0,fileName.lastIndexOf('.'));
+            elements.model.name.val(fileName);
 
+            }
+            
+        });
         elements.target.val(storage.target);
-        elements.model.name.val(storage.model.name);
+        
         elements.model.target.val(storage.model.target);
 
         // if it's still empty, let's show the reminder
@@ -316,9 +341,20 @@ $(document).ready(function() {
     
    
     elements.button.click(function (e) {
-
+        var newFile = false;
         storage.target = elements.target.val();
-        storage.model.name = elements.model.name.val().replace(/\s+/g, '');
+        if(storage.model.name==""){
+            storage.model.name = elements.model.name.val().replace(/\s+/g, '');
+            storage.model.name = storage.model.name + '.' + storage.target;
+            newFile = true;
+        }else{
+            var temp1 = elements.model.name.val().replace(/\s+/g, '');
+            if(!storage.model.name.includes(temp1)){
+                storage.model.name = elements.model.name.val().replace(/\s+/g, '');
+                storage.model.name = storage.model.name + '.' + storage.target;
+                newFile = true;
+            }
+        }
         storage.model.target = elements.model.target.val();
         storage.timestamp = new Date().valueOf();
 
@@ -369,28 +405,53 @@ $(document).ready(function() {
                 result.info[i].value.unshift(tempVal);
             }
 
+            var target = storage.targets[storage.target];
+
             var context = {
-                title: storage.model.name,
+                title: elements.model.name.val().replace(/\s+/g, ''),
                 locators: finaldata,
-                metadata : meta
+                metadata : meta,
+                package : target.config.code.package
             };
 
-            var target = storage.targets[storage.target];
             
-            var generated = (Handlebars.compile(target.template))(context);
+            var generated ="";
+            if (!newFile && !storage.target.endsWith('json')) {
 
-            
-            var fileName = storage.model.name + '.' + storage.target;
-
-            if(target.config.git.user != "" && target.config.git.key!=""){
-            
-
-                getFileShah(fileName, generated,target.config.git,target.config.gitcommit,target.config.code);
+                var template = target.template.substring(target.template.indexOf('//PAGE-OBJECT-START'), target.template.indexOf('//PAGE-OBJECT-END')+18);
+                generated = (Handlebars.compile(template))(context);
+            } else {
+                generated = (Handlebars.compile(target.template))(context);
             }
-            
-            download(elements.downloader, fileName, generated);
 
-            notify.success(fileName + ' is saved.');
+            
+
+            if (target.config.git.user != "" && target.config.git.key != "") {
+
+                if(newFile){
+                    getFileShahNew(storage.model.name, generated, target.config.git, target.config.gitcommit, target.config.code);
+                    
+                    
+
+                }else {
+
+                    getFileShah(storage.model.name, generated, target.config.git, target.config.gitcommit, target.config.code,function callback(content){
+
+                        download(elements.downloader, elements.model.name.val().replace(/\s+/g, '')+'.'+storage.target , content);
+
+                        notify.success(elements.model.name.val().replace(/\s+/g, '')+'.'+storage.target + ' is saved.');
+
+                    });
+                    return;
+
+                }
+            }
+
+            download(elements.downloader, elements.model.name.val().replace(/\s+/g, '')+'.'+storage.target , generated);
+
+            notify.success(elements.model.name.val().replace(/\s+/g, '')+'.'+storage.target + ' is saved.');
+            
+            
         });
     });
 });
@@ -399,15 +460,9 @@ $(document).ready(function() {
 
 function gitUpload(file, content, git,gitcommit,code, sha)
 {
-    var path="";
-    if(code.path && code.path!="" ){
-        path = code.path+'/';
-        if(code.package && code.package!=""){
-            path = path +code.package.split('.').join('/')+'/';
-        }
-    }
+    
     // Update a user
-    var url = git.repo+"/contents/"+path;
+    var url = git.repo+"/contents/";
     
     var data;
 
@@ -449,23 +504,17 @@ function gitUpload(file, content, git,gitcommit,code, sha)
         if (xhr.readyState == 4 && xhr.status == "200") {
             alert(file+' is successfully updated to Github repository');
         } else {
+           
             alert(JSON.stringify(xhr.responseText));
         }
     }
     xhr.send(json);
+    return content;
 };
 
-function getFileShah(file, content,git,gitcommit,code)
-{
-    var path="";
-    if(code.path && code.path!="" ){
-        path = code.path+'/';
-        if(code.package && code.package!=""){
-            path = path +code.package.split('.').join('/')+'/'
-        }
-    }
-    // Update a user
-    var url = git.repo+"/contents/"+path+file+"?ref="+git.branch;
+function getFileShah(file, content,git,gitcommit,code,cb){
+
+    var url = git.repo+"/contents/"+file+"?ref="+git.branch;
 
     var xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
@@ -475,14 +524,42 @@ function getFileShah(file, content,git,gitcommit,code)
     xhr.onload = function () {
         
         var users = JSON.parse(xhr.responseText);
-        if (xhr.readyState == 4 && xhr.status == "200") {
 
-            gitUpload(file, content, git,gitcommit,code,users.sha);
+        if (xhr.readyState == 4 && xhr.status == "200") {
+            if (file.endsWith('.json')) {
+                gitUpload(file, content, git, gitcommit, code, users.sha);
+            } else {
+                var data = atob(users.content);
+                var before = data.substring(0, data.indexOf('//PAGE-OBJECT-START'));
+                var after = data.substring(data.indexOf('//PAGE-OBJECT-END')+17)
+                var final = before + content + after;
+
+                gitUpload(file, final, git, gitcommit, code, users.sha);
+                cb(final)
+
+            }
         } else {
-            gitUpload(file, content, git,gitcommit,code,null);
+            
         }
     }
     xhr.send(null);
+
+
+}
+function getFileShahNew(file, content,git,gitcommit,code)
+{
+    var path="";
+    if(code.path && code.path!="" ){
+        path = code.path+'/';
+        if(code.package && code.package!=""){
+            path = path +code.package.split('.').join('/')+'/'
+        }
+    }
+    // Update a user
+
+    gitUpload(path+file, content, git,gitcommit,code,null);
+
+    
 };
 
 function getRootTree(branch, username, password, repo, cb){
@@ -540,8 +617,9 @@ function getFileList(sha, username, password,repo, cb)
 
 function getFileContent(name, url,username, password,fileType, cb){
     
-    var fileName = name.substring(name.lastIndexOf('/')+1);
-    fileName = fileName.substring(0,fileName.lastIndexOf('.'));
+    // var fileName = name.substring(name.lastIndexOf('/')+1);
+    // fileName = fileName.substring(0,fileName.lastIndexOf('.'));
+    var fileName = name;
 
 
 
