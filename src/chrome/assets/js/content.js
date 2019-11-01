@@ -311,16 +311,18 @@ chrome.runtime.onMessage.addListener(
 
 
   try {
-    var elements = abc(document.body);
+
+    document.addEventListener("mousedown", eventListener, false);
+    // var elements = abc(document.body);
 
   } catch (e){
     alert(e);
   }
 
-  for (var i = 0; i < elements.length; i++) 
-    {
-      elements[i].addEventListener("mousedown", eventListener, false);
-    }
+  // for (var i = 0; i < elements.length; i++) 
+  //   {
+  //     elements[i].addEventListener("mousedown", eventListener, false);
+  //   }
 
 
 
