@@ -113,7 +113,8 @@
                     storage.target = storage.target || 'java';
                     storage.targets = storage.targets || {
                         java: { label: 'Java' },
-                        json: { label: 'Json' }
+                        json: { label: 'Json' },
+                        js: { label: 'Protractor' }
                     };
 
                     // first timer

@@ -311,18 +311,16 @@ chrome.runtime.onMessage.addListener(
 
 
   try {
-
-    document.addEventListener("mousedown", eventListener, false);
-    // var elements = abc(document.body);
+    var elements = abc(document.body);
 
   } catch (e){
     alert(e);
   }
 
-  // for (var i = 0; i < elements.length; i++) 
-  //   {
-  //     elements[i].addEventListener("mousedown", eventListener, false);
-  //   }
+  for (var i = 0; i < elements.length; i++) 
+    {
+      elements[i].addEventListener("mousedown", eventListener, false);
+    }
 
 
 
@@ -375,7 +373,7 @@ function action (myelement) {
                     page_verification : pageVer,
                     locator : {
                       type : "id",
-                      value : abc[i].substring(abc[i].indexOf('id=')),
+                      value : abc[i].substring('id='.length),
                       tag_name : myelement.tagName
                     },
                     frameName : getFrameName(myelement)
@@ -392,7 +390,7 @@ function action (myelement) {
                     page_verification : pageVer,
                     locator : {
                       type : "name",
-                      value : abc[i].substring(abc[i].indexOf('name=')),
+                      value : abc[i].substring('name='.length),
                       tag_name : myelement.tagName
                     },
                     frameName : getFrameName(myelement)
@@ -411,7 +409,7 @@ function action (myelement) {
                     page_verification : pageVer,
                     locator : {
                       type : "link",
-                      value : abc[i].substring(abc[i].indexOf('link=')),
+                      value : abc[i].substring('link='.length),
                       tag_name : myelement.tagName
                     },
                     frameName : getFrameName(myelement)
@@ -429,7 +427,7 @@ function action (myelement) {
                     page_verification : pageVer,
                     locator : {
                       type : "css",
-                      value : abc[i].substring(abc[i].indexOf('css=')),
+                      value : abc[i].substring('css='.length),
                       tag_name : myelement.tagName
                      },
                      frameName : getFrameName(myelement) 
@@ -445,7 +443,7 @@ function action (myelement) {
                     page_verification : pageVer,
                     locator : {
                       type : "xpath",
-                      value : abc[i].substring(abc[i].indexOf('xpath=')),
+                      value : abc[i].substring('xpath='.length),
                       tag_name : myelement.tagName
                       },
                       frameName : getFrameName(myelement)
@@ -469,6 +467,86 @@ function action (myelement) {
                     };
                     
                     res.push(locator1);
+                }else if (abc[i].startsWith('ng-repeat') > 0) {
+
+                  var locator1 = {
+                    name: name1,
+                    class: getClassName(myelement),
+                    strict_locator: abc[i],
+                    page_verification: pageVer,
+                    locator: {
+                      type: "ng-repeat",
+                      value: abc[i].substring('ng-repeat='.length),
+                      tag_name: myelement.tagName
+                    },
+                    frameName: getFrameName(myelement)
+                  };
+          
+                  res.push(locator1);
+                } else if (abc[i].startsWith('ng-bind') > 0) {
+          
+                  var locator1 = {
+                    name: name1,
+                    class: getClassName(myelement),
+                    strict_locator: abc[i],
+                    page_verification: pageVer,
+                    locator: {
+                      type: "ng-bind",
+                      value: abc[i].substring('ng-bind='.length),
+                      tag_name: myelement.tagName
+                    },
+                    frameName: getFrameName(myelement)
+                  };
+          
+                  res.push(locator1);
+                } else if (abc[i].startsWith('ng-options') > 0) {
+          
+                  var locator1 = {
+                    name: name1,
+                    class: getClassName(myelement),
+                    strict_locator: abc[i],
+                    page_verification: pageVer,
+                    locator: {
+                      type: "ng-options",
+                      value: abc[i].substring('ng-options='.length),
+                      tag_name: myelement.tagName
+                    },
+                    frameName: getFrameName(myelement)
+                  };
+          
+                  res.push(locator1);
+                }else if (abc[i].startsWith('ng-model') > 0) {
+          
+                  var locator1 = {
+                    name: name1,
+                    class: getClassName(myelement),
+                    strict_locator: abc[i],
+                    page_verification: pageVer,
+                    locator: {
+                      type: "ng-model",
+                      value: abc[i].substring('ng-model='.length),
+                      tag_name: myelement.tagName
+                    },
+                    frameName: getFrameName(myelement)
+                  };
+          
+                  res.push(locator1);
+                } else if (abc[i].startsWith('ng-repeat') > 0) {
+          
+                  var locator1 = {
+                    name: name1,
+                    class: getClassName(myelement),
+                    strict_locator: abc[i],
+                    page_verification: pageVer,
+                    locator: {
+                      type: "ng-repeat",
+                      value: abc[i].substring('ng-repeat='.length),
+                      tag_name: myelement.tagName
+                    },
+                    frameName: getFrameName(myelement)
+                  };
+          
+                  res.push(locator1);
                 }
 
                 
@@ -931,6 +1009,47 @@ LocatorBuilders.add('xpath:position', function(e, opt_contextNode) {
     }
     current = current.parentNode;
     this.log.debug("positionXPath: current=" + current);
+  }
+  return null;
+});
+
+LocatorBuilders.add('ng-model', function (e) {
+
+  var current = e;
+
+  if (e.getAttribute('ng-model') != null) {
+    return "ng-model=" + e.getAttribute('ng-model');
+
+  }
+
+  return null;
+});
+
+LocatorBuilders.add('ng-repeat', function (e) {
+  var current = e;
+  if (e.getAttribute('ng-repeat')) {
+    return "ng-repeat=" + e.getAttribute('ng-repeat');
+
+  }
+
+  return null;
+});
+
+LocatorBuilders.add('ng-bind', function (e) {
+
+  var current = e;
+  if (e.getAttribute('ng-bind')) {
+    return "ng-bind=" + e.getAttribute('ng-bind');
+
+  }
+
+  return null;
+});
+LocatorBuilders.add('ng-options', function (e) {
+  var current = e;
+  if (e.getAttribute('ng-options')) {
+    return "ng-options=" + e.getAttribute('ng-options');
+
   }
   return null;
 });

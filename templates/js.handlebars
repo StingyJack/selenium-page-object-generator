@@ -1,0 +1,46 @@
+var {{title}} = function() {
+
+  //PAGE-OBJECT-START
+
+    /*PO
+    {
+        "metadata":"{{{metadata}}}"
+    }
+
+    PO*/
+    {{#javalist locators}}
+    var {{name}} = getLocator('{{{locator_type}}}','{{{locator_value}}}');  
+    {{/javalist}}
+
+    {{#javalist locators}}
+    function get{{{cName}}}(){
+        return {{{name}}};
+    }      
+    {{/javalist}}
+
+    function getLocator(type, value){
+        if(type =='ng-model'){
+            return by.model(value);
+        }else if (type == 'ng-repeat'){
+            return by.repeat(value);
+        }else if (type == 'ng-bind'){
+            return by.binding(value);
+        }else if (type == 'ng-options'){
+            return by.options(value);
+        }else if (type == 'id'){
+            return by.id(value);
+        }else if (type == 'name'){
+            return by.name(value);
+        }else if (type == 'link'){
+            return by.link(value);
+        }else if (type == 'xpath'){
+            return by.xpath(value);
+        }else if (type == 'css'){
+            return by.css(value);
+        }
+    }
+
+    //PAGE-OBJECT-END
+    
+};
+module.exports = new {{title}}();
